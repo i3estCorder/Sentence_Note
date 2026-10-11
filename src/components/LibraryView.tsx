@@ -14,6 +14,7 @@ import {
   Sparkles,
   Eye,
   EyeOff,
+  Volume2,
 } from 'lucide-react'
 import type { SentenceData } from '../types'
 import { SentenceDetailModal } from './SentenceDetailModal'
@@ -89,6 +90,24 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       ...prev,
       [sentenceId]: !prev[sentenceId],
     }))
+  }
+
+  // Text-to-speech pronunciation handler for sentences
+  const [speakingSentenceId, setSpeakingSentenceId] = useState<string | null>(null)
+
+  const handleSpeakSentence = (sentenceId: string, text: string) => {
+    if (!('speechSynthesis' in window)) return
+    window.speechSynthesis.cancel()
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.95
+
+    utterance.onstart = () => setSpeakingSentenceId(sentenceId)
+    utterance.onend = () => setSpeakingSentenceId(null)
+    utterance.onerror = () => setSpeakingSentenceId(null)
+
+    window.speechSynthesis.speak(utterance)
   }
 
   // Google Photos style fast-scroll floating bubble state
@@ -641,6 +660,23 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     </span>
 
                                     <div className="flex items-center gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleSpeakSentence(sentence.id, sentence.text)
+                                        }}
+                                        className={`w-6.5 h-6.5 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                                          speakingSentenceId === sentence.id
+                                            ? 'text-[#12382c] dark:text-[#a7f3d0] bg-[#e3eedf] dark:bg-[#1f3d32] ring-1 ring-[#12382c]/20'
+                                            : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#eae5d8] dark:hover:bg-[#20342f]'
+                                        }`}
+                                        title="문장 듣기"
+                                        aria-label="Listen to sentence"
+                                      >
+                                        <Volume2 className="w-3.5 h-3.5 stroke-[2.2]" />
+                                      </button>
+
                                       {sentence.translation && (
                                         <button
                                           type="button"

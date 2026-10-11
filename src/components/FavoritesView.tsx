@@ -8,6 +8,7 @@ import {
   ArrowUpDown,
   Eye,
   EyeOff,
+  Volume2,
 } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
 import { highlightMultiPhrases } from '../utils/highlight'
@@ -48,6 +49,24 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
       ...prev,
       [sentenceId]: !prev[sentenceId],
     }))
+  }
+
+  // Text-to-speech pronunciation handler for sentences
+  const [speakingSentenceId, setSpeakingSentenceId] = useState<string | null>(null)
+
+  const handleSpeakSentence = (sentenceId: string, text: string) => {
+    if (!('speechSynthesis' in window)) return
+    window.speechSynthesis.cancel()
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.95
+
+    utterance.onstart = () => setSpeakingSentenceId(sentenceId)
+    utterance.onend = () => setSpeakingSentenceId(null)
+    utterance.onerror = () => setSpeakingSentenceId(null)
+
+    window.speechSynthesis.speak(utterance)
   }
 
   const favoriteSentences = sentences.filter((s) => s.isFavorite)
@@ -168,6 +187,20 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleSpeakSentence(card.sentence.id, card.sentence.text)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                          speakingSentenceId === card.sentence.id
+                            ? 'text-[#12382c] dark:text-[#a7f3d0] bg-[#e3eedf] dark:bg-[#1f3d32] ring-1 ring-[#12382c]/20'
+                            : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#eae6dc] dark:hover:bg-[#1b2b27]'
+                        }`}
+                        aria-label="Listen to sentence"
+                        title="문장 듣기"
+                      >
+                        <Volume2 className="w-4 h-4 stroke-[2.2]" />
+                      </button>
+
                       {card.sentence.translation && (
                         <button
                           type="button"

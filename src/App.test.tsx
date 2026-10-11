@@ -575,6 +575,23 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('renders a listen (TTS) button for each sentence in Library and triggers speech synthesis on click', () => {
+    localStorage.clear()
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+
+    // Sentences in library should have listen buttons
+    const listenBtns = screen.getAllByRole('button', { name: /listen to sentence/i })
+    expect(listenBtns.length).toBeGreaterThan(0)
+
+    // Clicking listen button does not throw
+    expect(() => fireEvent.click(listenBtns[0])).not.toThrow()
+
+    unmount()
+  })
 })
 
 

@@ -695,6 +695,31 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('allows toggling between Index and Sentence views in LibraryView', () => {
+    localStorage.clear()
+    const { unmount } = render(<App />)
+
+    // Initially in Index view, index cards region is present
+    expect(screen.getByRole('region', { name: /index cards list/i })).toBeInTheDocument()
+
+    // Find the Sentence toggle button in Library
+    const sentenceTabBtn = screen.getByRole('button', { name: /view by sentence/i })
+    expect(sentenceTabBtn).toBeInTheDocument()
+    fireEvent.click(sentenceTabBtn)
+
+    // Now sentences list region is present
+    expect(screen.getByRole('region', { name: /sentences list/i })).toBeInTheDocument()
+
+    // Switch back to Index view
+    const indexTabBtn = screen.getByRole('button', { name: /view by index/i })
+    expect(indexTabBtn).toBeInTheDocument()
+    fireEvent.click(indexTabBtn)
+
+    expect(screen.getByRole('region', { name: /index cards list/i })).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

@@ -38,6 +38,8 @@ interface LibraryViewProps {
 }
 
 type SortOrder = 'index-asc' | 'index-desc' | 'original'
+type ViewMode = 'index' | 'sentence'
+type SentenceSortOrder = 'original' | 'az' | 'za'
 
 interface GroupedIndex {
   phrase: string
@@ -75,8 +77,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onExportJSON,
   onImportJSON,
 }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>('index')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<SortOrder>('index-asc')
+  const [sentenceSortOrder, setSentenceSortOrder] = useState<SentenceSortOrder>('original')
   const [selectedDetailGroup, setSelectedDetailGroup] = useState<{
     group: GroupedIndex
     initialIndex: number
@@ -226,6 +230,29 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const activeLetters = useMemo(() => {
     return alphabetSections.map((s) => s.letter)
   }, [alphabetSections])
+
+  // Filtered and sorted sentences for sentence view mode
+  const filteredSentences = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim()
+    const list = sentences.filter((s) => {
+      if (!q) return true
+      const matchesText = s.text.toLowerCase().includes(q)
+      const matchesTranslation = s.translation?.toLowerCase().includes(q)
+      const matchesNotes = s.notes?.toLowerCase().includes(q)
+      const matchesIndex = s.indexes.some((idx) => idx.phrase.toLowerCase().includes(q))
+      return matchesText || matchesTranslation || matchesNotes || matchesIndex
+    })
+
+    return [...list].sort((a, b) => {
+      if (sentenceSortOrder === 'az') {
+        return a.text.localeCompare(b.text, undefined, { sensitivity: 'base' })
+      }
+      if (sentenceSortOrder === 'za') {
+        return b.text.localeCompare(a.text, undefined, { sensitivity: 'base' })
+      }
+      return 0
+    })
+  }, [sentences, searchQuery, sentenceSortOrder])
 
   // Scroll listener for Google Photos style fast-scroll indicator
   useEffect(() => {
@@ -432,24 +459,70 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
         {/* View Mode & Sort Controls */}
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Index vs Sentence Mode Tabs */}
+          <div className="inline-flex items-center p-1 rounded-xl bg-[#ede9df] dark:bg-[#1b2b27] border border-[#dedad0] dark:border-[#283d36] text-xs font-semibold text-[#50675d] dark:text-[#8ea49a]">
+            <button
+              type="button"
+              onClick={() => setViewMode('index')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                viewMode === 'index'
+                  ? 'bg-white dark:bg-[#14201c] text-[#12382c] dark:text-[#34d399] font-bold shadow-xs'
+                  : 'hover:text-[#12382c] dark:hover:text-[#e4ede8]'
+              }`}
+              aria-pressed={viewMode === 'index'}
+              aria-label="View by index"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
+              <span>Index ({groupedIndexList.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewMode('sentence')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                viewMode === 'sentence'
+                  ? 'bg-white dark:bg-[#14201c] text-[#3730a3] dark:text-[#a5b4fc] font-bold shadow-xs'
+                  : 'hover:text-[#12382c] dark:hover:text-[#e4ede8]'
+              }`}
+              aria-pressed={viewMode === 'sentence'}
+              aria-label="View by sentence"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#3730a3] dark:text-[#a5b4fc]" />
+              <span>Sentence ({sentences.length})</span>
+            </button>
+          </div>
+
           {/* Sort Order Selector */}
           <div className="relative inline-flex items-center">
-            <label htmlFor="index-sort-select" className="sr-only">
+            <label htmlFor="library-sort-select" className="sr-only">
               Sort index order
             </label>
             <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] text-xs font-medium text-[#234235] dark:text-[#c4ded3] shadow-2xs">
               <ArrowUpDown className="w-3.5 h-3.5 text-[#5e786d] dark:text-[#8ea49a]" />
               <span className="text-[#7c8d85] dark:text-[#8ea49a]">Sort:</span>
-              <select
-                id="index-sort-select"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                className="bg-transparent font-semibold text-[#12382c] dark:text-[#e4ede8] focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="index-asc" className="dark:bg-[#14201c]">Index (A → Z)</option>
-                <option value="index-desc" className="dark:bg-[#14201c]">Index (Z → A)</option>
-                <option value="original" className="dark:bg-[#14201c]">Original</option>
-              </select>
+              {viewMode === 'index' ? (
+                <select
+                  id="library-sort-select"
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+                  className="bg-transparent font-semibold text-[#12382c] dark:text-[#e4ede8] focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="index-asc" className="dark:bg-[#14201c]">Index (A → Z)</option>
+                  <option value="index-desc" className="dark:bg-[#14201c]">Index (Z → A)</option>
+                  <option value="original" className="dark:bg-[#14201c]">Original</option>
+                </select>
+              ) : (
+                <select
+                  id="library-sort-select"
+                  value={sentenceSortOrder}
+                  onChange={(e) => setSentenceSortOrder(e.target.value as SentenceSortOrder)}
+                  className="bg-transparent font-semibold text-[#12382c] dark:text-[#e4ede8] focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="original" className="dark:bg-[#14201c]">Original</option>
+                  <option value="az" className="dark:bg-[#14201c]">Sentence (A → Z)</option>
+                  <option value="za" className="dark:bg-[#14201c]">Sentence (Z → A)</option>
+                </select>
+              )}
             </div>
           </div>
         </div>
@@ -461,7 +534,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       <div
         aria-live="polite"
         className={`fixed right-14 sm:right-20 top-24 z-50 pointer-events-none transition-all duration-300 transform ${
-          isScrolling && scrollingLabel
+          isScrolling && scrollingLabel && viewMode === 'index'
             ? 'opacity-100 translate-x-0 scale-100 shadow-2xl'
             : 'opacity-0 translate-x-4 scale-90'
         }`}
@@ -484,7 +557,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {/* ------------------------------------------------------------- */}
       {/* IMAGE 2 INSPIRED BOOKMARK INDEX TAB RAIL (Right Edge Sticky) */}
       {/* ------------------------------------------------------------- */}
-      {activeLetters.length > 0 && (
+      {viewMode === 'index' && activeLetters.length > 0 && (
         <aside
           aria-label="Alphabetical fast-jump tabs"
           className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-1 items-end pointer-events-auto"
@@ -522,12 +595,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* 2-TIER GROUPED INDEX CARDS (Default & Permanent View) */}
+      {/* 2-TIER GROUPED INDEX CARDS (Index View Mode) */}
       {/* Tier 1: Alphabet Section Chapter Header */}
       {/* Tier 2: Grouped Index Card (e.g. rare is 1 card) */}
       {/* Tier 3: Multiple Context Sentences Grouped Inside Card */}
       {/* ------------------------------------------------------------- */}
-      <div className="space-y-10" role="region" aria-label="Index cards list">
+      {viewMode === 'index' && (
+        <div className="space-y-10" role="region" aria-label="Index cards list">
         <div className="flex items-center justify-between text-xs font-medium text-[#647c72] dark:text-[#8ea49a] px-1">
             <span>
               Showing {groupedIndexList.length} unique index {groupedIndexList.length === 1 ? 'card' : 'cards'} in {alphabetSections.length} alphabet chapters
@@ -852,6 +926,197 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             </div>
           )}
         </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* SENTENCE CARDS LIST (Sentence View Mode) */}
+      {/* ------------------------------------------------------------- */}
+      {viewMode === 'sentence' && (
+        <div className="space-y-4" role="region" aria-label="Sentences list">
+          <div className="flex items-center justify-between text-xs font-medium text-[#647c72] dark:text-[#8ea49a] px-1">
+            <span>
+              Showing {filteredSentences.length} {filteredSentences.length === 1 ? 'sentence' : 'sentences'}
+              {searchQuery.trim() && ` matching "${searchQuery.trim()}"`}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {filteredSentences.map((sentence, sIdx) => (
+              <div
+                key={sentence.id}
+                className="bg-white dark:bg-[#14201c] rounded-2xl p-5 sm:p-6 border border-[#ece8df] dark:border-[#23352f] shadow-xs hover:shadow-sm transition-all"
+              >
+                {/* Card Top: Index badges & Actions */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ede9df] dark:bg-[#273a34] text-[#4f675b] dark:text-[#9eb4aa]">
+                      #{sIdx + 1}
+                    </span>
+                    {sentence.indexes.length > 0 ? (
+                      sentence.indexes.map((idx) => (
+                        <span
+                          key={idx.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#dcf2e6] dark:bg-[#183d2f] text-[#12382c] dark:text-[#9fe2c7] ring-1 ring-[#b8ebd2] dark:ring-[#235845]"
+                        >
+                          <Sparkles className="w-2.5 h-2.5 text-[#133d2e] dark:text-[#34d399]" />
+                          {idx.phrase}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-[#8c9e96] dark:text-[#6a8076] italic">
+                        Unindexed
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Actions: Speak, Translation Toggle, Favorite, Delete */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleSpeakSentence(sentence.id, sentence.text)}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                        speakingSentenceId === sentence.id
+                          ? 'text-[#12382c] dark:text-[#a7f3d0] bg-[#e3eedf] dark:bg-[#1f3d32] ring-1 ring-[#12382c]/20'
+                          : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27]'
+                      }`}
+                      title="문장 듣기"
+                      aria-label="Listen to sentence"
+                    >
+                      <Volume2 className="w-4 h-4 stroke-[2.2]" />
+                    </button>
+
+                    {sentence.translation && (
+                      <button
+                        type="button"
+                        onClick={() => toggleTranslation(sentence.id)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                          revealedTranslationIds[sentence.id]
+                            ? 'text-[#12382c] dark:text-[#a7f3d0] bg-[#e3eedf] dark:bg-[#1f3d32]'
+                            : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27]'
+                        }`}
+                        title={revealedTranslationIds[sentence.id] ? '번역 숨기기' : '번역 보기'}
+                        aria-label={revealedTranslationIds[sentence.id] ? 'Hide translation' : 'Show translation'}
+                      >
+                        {revealedTranslationIds[sentence.id] ? (
+                          <EyeOff className="w-4 h-4 stroke-[2.2]" />
+                        ) : (
+                          <Eye className="w-4 h-4 stroke-[2.2]" />
+                        )}
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => onToggleFavorite(sentence.id)}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                        sentence.isFavorite
+                          ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                          : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27]'
+                      }`}
+                      aria-label={sentence.isFavorite ? 'Remove from favorites' : 'Mark as favorite'}
+                    >
+                      <Star
+                        className={`w-4 h-4 ${sentence.isFavorite ? 'fill-current' : ''}`}
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSentenceToDelete(sentence)}
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                      aria-label="Delete sentence"
+                      title="문장 삭제"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sentence English Text */}
+                <div
+                  onClick={() => {
+                    const firstIdx = sentence.indexes[0]?.phrase?.toLowerCase()
+                    const matchingGroup = firstIdx
+                      ? groupedIndexList.find((g) => g.phrase.toLowerCase() === firstIdx)
+                      : null
+                    if (matchingGroup) {
+                      const sIdxInGroup = matchingGroup.sentences.findIndex((s) => s.id === sentence.id)
+                      setSelectedDetailGroup({
+                        group: matchingGroup,
+                        initialIndex: sIdxInGroup >= 0 ? sIdxInGroup : 0,
+                      })
+                    } else {
+                      onSelectSentenceToEdit(sentence)
+                    }
+                  }}
+                  className="cursor-pointer group/sentence"
+                >
+                  <p className="text-base sm:text-lg text-[#143d30] dark:text-[#e4ede8] font-serif leading-relaxed group-hover/sentence:text-[#133d2e] dark:group-hover/sentence:text-[#a7f3d0] transition-colors">
+                    {highlightMultiPhrases(
+                      sentence.text,
+                      sentence.indexes[0]?.phrase || '',
+                      sentence.indexes.slice(1).map((i) => i.phrase)
+                    )}
+                  </p>
+                </div>
+
+                {/* Translation box */}
+                {sentence.translation && (
+                  <div className="mt-3">
+                    {revealedTranslationIds[sentence.id] ? (
+                      <p className="text-sm text-[#4d6359] dark:text-[#a0b5ab] bg-[#f6f4ee] dark:bg-[#182621] p-3 rounded-xl border border-[#ece8df] dark:border-[#23352f]">
+                        {sentence.translation}
+                      </p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => toggleTranslation(sentence.id)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#657c72] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] bg-[#f6f4ee]/80 dark:bg-[#182621]/80 px-2.5 py-1 rounded-lg border border-[#ece8df] dark:border-[#23352f] transition-colors cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>번역이 숨겨져 있습니다. 클릭하여 확인하세요.</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Additional Info / Note */}
+                {sentence.notes && (
+                  <div className="mt-2 text-xs text-[#6e8278] dark:text-[#8ea49a] bg-[#faf9f5] dark:bg-[#1b2b27] px-3 py-2 rounded-lg border border-[#eeebe3] dark:border-[#253932]">
+                    <span className="font-semibold text-[#12382c] dark:text-[#a7f3d0] mr-1.5">Note:</span>
+                    {sentence.notes}
+                  </div>
+                )}
+
+                {/* Footer: Edit Button */}
+                <div className="pt-3 mt-3 border-t border-[#f2ede4] dark:border-[#23352f] flex items-center justify-between gap-3">
+                  <span className="text-xs text-[#71857c] dark:text-[#8ea49a]">
+                    {sentence.indexes.length}개 인덱스 연결됨
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onSelectSentenceToEdit(sentence)}
+                    className="inline-flex items-center justify-center gap-1.5 h-8.5 px-3.5 rounded-xl text-xs font-semibold bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white transition-all cursor-pointer shadow-2xs hover:shadow-xs shrink-0"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 stroke-[2.2]" />
+                    <span>Edit sentence</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredSentences.length === 0 && (
+            <div className="bg-white dark:bg-[#14201c] rounded-2xl p-12 text-center border border-[#ece8df] dark:border-[#23352f]">
+              <BookOpen className="w-10 h-10 text-[#8c9e96] dark:text-[#6a8076] mx-auto mb-3 stroke-[1.5]" />
+              <h3 className="text-base font-semibold text-[#12382c] dark:text-[#e4ede8]">No sentences found</h3>
+              <p className="text-xs text-[#7c8d85] dark:text-[#8ea49a] mt-1">
+                Try adjusting your search query or add a new sentence.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Sentence Detail Popup Modal */}
       <SentenceDetailModal

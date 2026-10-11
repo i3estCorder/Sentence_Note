@@ -250,60 +250,58 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
       </div>
 
       {/* Controls Bar: Index/Sentence View Mode Toggle & Sort Controls */}
-      {favoriteSentences.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          {/* Index vs Sentence Mode Tabs */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-[#ede9df] dark:bg-[#1b2b27] border border-[#dedad0] dark:border-[#283d36] self-start">
-            <button
-              type="button"
-              onClick={() => setViewMode('index')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === 'index'
-                  ? 'bg-white dark:bg-[#14201c] text-[#12382c] dark:text-[#34d399] shadow-xs'
-                  : 'text-[#61776c] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8]'
-              }`}
-              aria-label="View by index"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Index별 ({favoriteIndexCards.length})</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('sentence')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === 'sentence'
-                  ? 'bg-white dark:bg-[#14201c] text-[#12382c] dark:text-[#34d399] shadow-xs'
-                  : 'text-[#61776c] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8]'
-              }`}
-              aria-label="View by sentence"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Sentence별 ({favoriteSentenceCards.length})</span>
-            </button>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        {/* Index vs Sentence Mode Tabs */}
+        <div className="inline-flex items-center p-1 rounded-xl bg-[#ede9df] dark:bg-[#1b2b27] border border-[#dedad0] dark:border-[#283d36] self-start">
+          <button
+            type="button"
+            onClick={() => setViewMode('index')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'index'
+                ? 'bg-white dark:bg-[#14201c] text-[#12382c] dark:text-[#34d399] shadow-xs'
+                : 'text-[#61776c] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8]'
+            }`}
+            aria-label="View by index"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
+            <span>Index별 ({favoriteIndexCards.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('sentence')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'sentence'
+                ? 'bg-white dark:bg-[#14201c] text-[#3730a3] dark:text-[#a5b4fc] shadow-xs'
+                : 'text-[#61776c] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8]'
+            }`}
+            aria-label="View by sentence"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-[#3730a3] dark:text-[#a5b4fc]" />
+            <span>Sentence별 ({favoriteSentenceCards.length})</span>
+          </button>
+        </div>
 
-          {/* Sort Selector */}
-          <div className="relative inline-flex items-center self-end sm:self-auto">
-            <label htmlFor="fav-index-sort-select" className="sr-only">
-              Sort order
-            </label>
-            <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] text-xs font-medium text-[#234235] dark:text-[#c4ded3] shadow-2xs">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#5e786d] dark:text-[#8ea49a]" />
-              <span className="text-[#7c8d85] dark:text-[#8ea49a]">Sort:</span>
-              <select
-                id="fav-index-sort-select"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                className="bg-transparent font-semibold text-[#12382c] dark:text-[#e4ede8] focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="index-asc" className="dark:bg-[#14201c]">A → Z</option>
-                <option value="index-desc" className="dark:bg-[#14201c]">Z → A</option>
-                <option value="original" className="dark:bg-[#14201c]">Original</option>
-              </select>
-            </div>
+        {/* Sort Selector */}
+        <div className="relative inline-flex items-center self-end sm:self-auto">
+          <label htmlFor="fav-index-sort-select" className="sr-only">
+            Sort order
+          </label>
+          <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] text-xs font-medium text-[#234235] dark:text-[#c4ded3] shadow-2xs">
+            <ArrowUpDown className="w-3.5 h-3.5 text-[#5e786d] dark:text-[#8ea49a]" />
+            <span className="text-[#7c8d85] dark:text-[#8ea49a]">Sort:</span>
+            <select
+              id="fav-index-sort-select"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+              className="bg-transparent font-semibold text-[#12382c] dark:text-[#e4ede8] focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="index-asc" className="dark:bg-[#14201c]">A → Z</option>
+              <option value="index-desc" className="dark:bg-[#14201c]">Z → A</option>
+              <option value="original" className="dark:bg-[#14201c]">Original</option>
+            </select>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Favorite Cards Grid */}
       <div className="space-y-4">

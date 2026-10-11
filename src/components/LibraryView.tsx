@@ -576,7 +576,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   palette.bg
                 } ${palette.text} ${
                   isCurrent
-                    ? 'w-10 h-7 text-xs shadow-md ring-2 ring-white translate-x-0 font-black'
+                    ? 'w-10 h-7 text-xs font-black shadow-lg translate-x-0 brightness-110 drop-shadow-sm'
                     : 'w-7 h-6 text-[11px] opacity-85 hover:opacity-100 hover:w-9 hover:-translate-x-1 shadow-xs'
                 }`}
                 style={{

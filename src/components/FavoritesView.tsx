@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
 import { highlightMultiPhrases } from '../utils/highlight'
+import { speechService } from '../services/speechService'
 
 interface FavoritesViewProps {
   sentences: SentenceData[]
@@ -55,18 +56,11 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
   const [speakingSentenceId, setSpeakingSentenceId] = useState<string | null>(null)
 
   const handleSpeakSentence = (sentenceId: string, text: string) => {
-    if (!('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'en-US'
-    utterance.rate = 0.95
-
-    utterance.onstart = () => setSpeakingSentenceId(sentenceId)
-    utterance.onend = () => setSpeakingSentenceId(null)
-    utterance.onerror = () => setSpeakingSentenceId(null)
-
-    window.speechSynthesis.speak(utterance)
+    speechService.speak(text, {
+      onStart: () => setSpeakingSentenceId(sentenceId),
+      onEnd: () => setSpeakingSentenceId(null),
+      onError: () => setSpeakingSentenceId(null),
+    })
   }
 
   const favoriteSentences = sentences.filter((s) => s.isFavorite)

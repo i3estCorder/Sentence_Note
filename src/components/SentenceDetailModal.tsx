@@ -19,6 +19,7 @@ import { getIndexMeaning, getSentenceTranslation } from '../utils/dictionary'
 import { highlightMultiPhrases } from '../utils/highlight'
 import { EditSentenceModal } from './EditSentenceModal'
 import { ConfirmationModal } from './ConfirmationModal'
+import { speechService } from '../services/speechService'
 
 interface GroupedIndex {
   phrase: string
@@ -90,18 +91,13 @@ export const SentenceDetailModal: React.FC<SentenceDetailModalProps> = ({
     ? getSentenceTranslation(currentSentence.text, currentSentence.translation)
     : ''
 
-  // Speak using Web Speech API
+  // Speak using smart Speech Service (Apple Siri / Samsung Bixby priority)
   const handleSpeak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'en-US'
-      utterance.rate = 0.95
-      utterance.onstart = () => setIsSpeaking(true)
-      utterance.onend = () => setIsSpeaking(false)
-      utterance.onerror = () => setIsSpeaking(false)
-      window.speechSynthesis.speak(utterance)
-    }
+    speechService.speak(text, {
+      onStart: () => setIsSpeaking(true),
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    })
   }
 
   // Copy sentence to clipboard

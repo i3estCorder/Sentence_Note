@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
 import { findPhraseMatches } from '../utils/highlight'
+import { speechService } from '../services/speechService'
 
 export type AnkiRating = 'again' | 'hard' | 'good' | 'easy'
 export type CardState = 'new' | 'learning' | 'review'
@@ -192,20 +193,13 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
     return { newCards, learnCards, reviewCards }
   }, [queue])
 
-  // Text-to-speech pronunciation handler
+  // Text-to-speech pronunciation handler (Smart Speech Service)
   const handleSpeak = (text: string) => {
-    if (!('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'en-US'
-    utterance.rate = 0.95
-
-    utterance.onstart = () => setIsSpeaking(true)
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
-
-    window.speechSynthesis.speak(utterance)
+    speechService.speak(text, {
+      onStart: () => setIsSpeaking(true),
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    })
   }
 
   // Anki SM-2 Interval Calculation helper

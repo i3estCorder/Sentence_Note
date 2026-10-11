@@ -11,6 +11,7 @@ import { NewSentenceModal } from './components/NewSentenceModal'
 import { LibraryView } from './components/LibraryView'
 import { ReviewView } from './components/ReviewView'
 import { FavoritesView } from './components/FavoritesView'
+import { HistoryView } from './components/HistoryView'
 import { AboutView } from './components/AboutView'
 import { Toast, type ToastMessage } from './components/Toast'
 import { initialSentences } from './data/mockData'
@@ -474,7 +475,15 @@ export function App() {
             />
           )}
 
-          {/* View 5: About SentVault */}
+          {/* View 5: History */}
+          {currentNav === 'history' && (
+            <HistoryView
+              onBackToMain={() => setCurrentNav('library')}
+              onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+            />
+          )}
+
+          {/* View 6: About SentVault */}
           {currentNav === 'about' && (
             <AboutView
               onNavigateToLibrary={() => setCurrentNav('library')}

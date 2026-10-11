@@ -13,7 +13,7 @@ export interface SentenceData {
   isFavorite?: boolean
 }
 
-export type NavItemId = 'library' | 'review' | 'favorites' | 'edit-index' | 'about'
+export type NavItemId = 'library' | 'review' | 'favorites' | 'edit-index' | 'history' | 'about'
 
 export interface NavItem {
   id: NavItemId

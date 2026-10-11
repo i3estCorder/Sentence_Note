@@ -740,6 +740,26 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('navigates to History page and displays Git Graph commit timeline and V1.0 tag', () => {
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    const historyBtn = within(nav).getByRole('button', { name: /history/i })
+    fireEvent.click(historyBtn)
+
+    // Heading for Commit History in History page
+    expect(screen.getByRole('heading', { level: 1, name: /commit history/i })).toBeInTheDocument()
+    expect(screen.getAllByText(/v1\.0/i).length).toBeGreaterThanOrEqual(1)
+
+    // Click Back to Library
+    const backBtn = screen.getByRole('button', { name: /back to library/i })
+    fireEvent.click(backBtn)
+
+    expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

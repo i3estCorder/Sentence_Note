@@ -7,6 +7,7 @@ import {
   Sun,
   Moon,
   Info,
+  GitBranch,
 } from 'lucide-react'
 import type { NavItemId } from '../types'
 
@@ -59,6 +60,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'favorites',
       label: 'Favorites',
       icon: <Star className="w-4 h-4 shrink-0 stroke-[2]" aria-hidden="true" />,
+    },
+    {
+      id: 'history',
+      label: 'History',
+      icon: <GitBranch className="w-4 h-4 shrink-0 stroke-[2]" aria-hidden="true" />,
     },
     {
       id: 'about',

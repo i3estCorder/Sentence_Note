@@ -653,7 +653,7 @@ describe('Sentence Note - Multi-Index Management', () => {
     expect(screen.getAllByText('behind').length).toBeGreaterThanOrEqual(1)
 
     // Title should contain both phrases separated by |
-    expect(screen.getByRole('heading', { level: 3, name: /tucked away \| behind/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: /tucked away\s*\|\s*behind/i })).toBeInTheDocument()
 
     unmount()
   })

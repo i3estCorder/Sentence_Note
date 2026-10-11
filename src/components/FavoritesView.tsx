@@ -250,8 +250,19 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
                       </span>
                     </div>
 
-                    <h3 className="text-lg sm:text-xl font-bold text-[#12382c] dark:text-[#e4ede8] tracking-tight truncate">
-                      {card.indexes.map((i) => i.phrase).join(' | ') || card.primaryPhrase}
+                    <h3 className="text-lg sm:text-xl font-bold text-[#12382c] dark:text-[#e4ede8] tracking-tight truncate flex items-center flex-wrap">
+                      {card.indexes.length > 0
+                        ? card.indexes.map((i, idx) => (
+                            <React.Fragment key={i.id || idx}>
+                              {idx > 0 && (
+                                <span className="text-[#9cb0a6] dark:text-[#4e685c] font-light mx-1.5 select-none">
+                                  {' | '}
+                                </span>
+                              )}
+                              <span>{i.phrase}</span>
+                            </React.Fragment>
+                          ))
+                        : card.primaryPhrase}
                     </h3>
                   </div>
 
@@ -360,9 +371,23 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
               {/* Card Footer: Edit Button & Index Summary */}
               <div className="pt-3.5 mt-3 border-t border-[#f2ede4] dark:border-[#23352f] flex items-center justify-between gap-3">
                 <div className="text-xs text-[#71857c] dark:text-[#8ea49a] font-medium truncate">
-                  {card.indexes.length > 1
-                    ? `${card.indexes.length}개 인덱스 태그: ${card.indexes.map((i) => i.phrase).join(' | ')}`
-                    : `인덱스 태그: "${card.indexes[0]?.phrase || ''}"`}
+                  {card.indexes.length > 1 ? (
+                    <span>
+                      {card.indexes.length}개 인덱스 태그:{' '}
+                      {card.indexes.map((i, idx) => (
+                        <React.Fragment key={i.id || idx}>
+                          {idx > 0 && (
+                            <span className="text-[#a4b5ad] dark:text-[#4d665a] font-light mx-1 select-none">
+                              {' | '}
+                            </span>
+                          )}
+                          <span>{i.phrase}</span>
+                        </React.Fragment>
+                      ))}
+                    </span>
+                  ) : (
+                    `인덱스 태그: "${card.indexes[0]?.phrase || ''}"`
+                  )}
                 </div>
                 <button
                   type="button"

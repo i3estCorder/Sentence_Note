@@ -113,9 +113,18 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
     return list
   }, [sentences, srsStatsMap])
 
+  // Due review items: cards whose dueDate <= today (or unreviewed cards)
+  const dueReviewItems = useMemo(() => {
+    const today = getTodayString()
+    return allReviewItems.filter((item) => {
+      // If card has never been reviewed, or its dueDate is today or earlier
+      return !item.stats.lastReviewed || item.stats.dueDate <= today
+    })
+  }, [allReviewItems])
+
   // Active Session Queue (Anki logic: cards in queue can be appended again when user presses 'Again')
-  const [queue, setQueue] = useState<ReviewItem[]>(() => [...allReviewItems])
-  const [prevItemsCount, setPrevItemsCount] = useState(allReviewItems.length)
+  const [queue, setQueue] = useState<ReviewItem[]>(() => [...dueReviewItems])
+  const [prevSentencesCount, setPrevSentencesCount] = useState(sentences.length)
   const [isRevealed, setIsRevealed] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
@@ -125,10 +134,16 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
   const [sessionGoodCount, setSessionGoodCount] = useState(0)
   const [isSessionFinished, setIsSessionFinished] = useState(false)
 
-  // Sync queue if total items changed
-  if (prevItemsCount !== allReviewItems.length) {
-    setPrevItemsCount(allReviewItems.length)
-    setQueue([...allReviewItems])
+  // Today reviewed count across all sessions
+  const todayReviewedCount = useMemo(() => {
+    const today = getTodayString()
+    return allReviewItems.filter((item) => item.stats.lastReviewed === today).length
+  }, [allReviewItems])
+
+  // Sync queue only if total sentences count changed (e.g. user added or deleted sentences in library)
+  if (prevSentencesCount !== sentences.length) {
+    setPrevSentencesCount(sentences.length)
+    setQueue([...dueReviewItems])
   }
 
   // Initialize or restart study session queue
@@ -385,14 +400,18 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
             오늘의 복습 완료!
           </h2>
           <p className="text-sm text-[#5a7267] dark:text-[#8ea49a] mt-2 max-w-md">
-            축하합니다! 현재 덱에 배정된 모든 카드를 Anki 간격 반복(SRS) 원칙에 따라 복습했습니다.
+            {sessionCompletedCount === 0 && todayReviewedCount > 0
+              ? '오늘 복습할 카드를 모두 완료했습니다! 다음 복습 주기가 되면 카드가 자동으로 나타납니다.'
+              : '축하합니다! 현재 덱에 배정된 모든 카드를 Anki 간격 반복(SRS) 원칙에 따라 복습했습니다.'}
           </p>
 
           {/* Session Statistics Cards */}
           <div className="grid grid-cols-3 gap-3 w-full max-w-md mt-6 pt-6 border-t border-[#f2ede4] dark:border-[#23352f]">
             <div className="p-3.5 rounded-2xl bg-[#f8f7f2] dark:bg-[#1b2b27] border border-[#ebe7dc] dark:border-[#283d36]">
-              <div className="text-xs font-semibold text-[#7c8d85] dark:text-[#8ea49a]">완료한 카드</div>
-              <div className="text-xl font-black text-[#12382c] dark:text-[#e4ede8] mt-1">{sessionCompletedCount}</div>
+              <div className="text-xs font-semibold text-[#7c8d85] dark:text-[#8ea49a]">오늘 완료한 카드</div>
+              <div className="text-xl font-black text-[#12382c] dark:text-[#e4ede8] mt-1">
+                {sessionCompletedCount > 0 ? sessionCompletedCount : todayReviewedCount}
+              </div>
             </div>
             <div className="p-3.5 rounded-2xl bg-[#fef2f2] dark:bg-[#2c1818] border border-rose-200 dark:border-rose-900/60">
               <div className="text-xs font-semibold text-rose-700 dark:text-rose-400">다시(Again)</div>
@@ -400,7 +419,9 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
             </div>
             <div className="p-3.5 rounded-2xl bg-[#ecfdf5] dark:bg-[#132c21] border border-emerald-200 dark:border-emerald-900/60">
               <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">기억 성공</div>
-              <div className="text-xl font-black text-emerald-800 dark:text-emerald-300 mt-1">{sessionGoodCount}</div>
+              <div className="text-xl font-black text-emerald-800 dark:text-emerald-300 mt-1">
+                {sessionGoodCount > 0 ? sessionGoodCount : todayReviewedCount}
+              </div>
             </div>
           </div>
 

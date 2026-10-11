@@ -378,6 +378,35 @@ describe('Sentence Note - Multi-Index Management', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(false)
     expect(localStorage.getItem('sentence_note_theme')).toBe('light')
   })
+
+  it('persists reviewed card state so re-entering review does not reset completed cards', () => {
+    localStorage.clear()
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /review/i }))
+
+    // All initial cards are due (5 total)
+    expect(screen.getByText(/5\s+New/i)).toBeInTheDocument()
+
+    // Rate the first card as Good
+    fireEvent.click(screen.getByRole('button', { name: /reveal answer/i }))
+    fireEvent.click(screen.getByRole('button', { name: /good/i }))
+
+    // Now 4 cards remain in the active queue
+    expect(screen.getByText(/4\s+New/i)).toBeInTheDocument()
+
+    // Navigate away to Library
+    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+    expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
+
+    // Navigate back to Review
+    fireEvent.click(within(nav).getByRole('button', { name: /review/i }))
+
+    // The completed card is NOT reset! Remaining count should still be 4 New cards
+    expect(screen.getByText(/4\s+New/i)).toBeInTheDocument()
+    unmount()
+  })
 })
 
 

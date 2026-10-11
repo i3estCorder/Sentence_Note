@@ -75,7 +75,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<SortOrder>('index-asc')
-  const [selectedDetailGroup, setSelectedDetailGroup] = useState<GroupedIndex | null>(null)
+  const [selectedDetailGroup, setSelectedDetailGroup] = useState<{
+    group: GroupedIndex
+    initialIndex: number
+  } | null>(null)
   const [sentenceToEdit, setSentenceToEdit] = useState<SentenceData | null>(null)
   const [sentenceToDelete, setSentenceToDelete] = useState<SentenceData | null>(null)
   // Revealed translations state: default hidden for all sentences
@@ -113,7 +116,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           })
         } else {
           const entry = map.get(key)!
-          if (!entry.sentences.some((s) => s.id === sentence.id)) {
+          if (!entry.sentences.some((s) => s.id === sentence.id && s.text.trim() === sentence.text.trim())) {
             entry.sentences.push(sentence)
           }
         }
@@ -131,8 +134,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           })
         } else {
           const entry = map.get(key)!
-          // avoid duplicate sentence in the same index group
-          if (!entry.sentences.some((s) => s.id === sentence.id)) {
+          // avoid duplicate sentence in the same index group: compare ID and text to prevent dropping distinct sentences
+          if (!entry.sentences.some((s) => s.id === sentence.id && s.text.trim() === sentence.text.trim())) {
             entry.sentences.push(sentence)
           }
         }
@@ -545,7 +548,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                       <article
                         key={`${section.letter}-${group.phrase}-${groupIdx}`}
                         data-scroll-anchor={`${section.letter} · ${group.phrase}`}
-                        onClick={() => setSelectedDetailGroup(group)}
+                        onClick={() => setSelectedDetailGroup({ group, initialIndex: 0 })}
                         className="scroll-mt-24 bg-white dark:bg-[#14201c] rounded-2xl p-5 sm:p-6 border border-[#ece7dc] dark:border-[#23352f] hover:border-[#133d2e]/30 dark:hover:border-[#34d399]/30 shadow-[0_2px_10px_-2px_rgba(20,50,40,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(20,50,40,0.08)] transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:-translate-y-0.5"
                       >
                         <div>
@@ -625,7 +628,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                               {group.sentences.map((sentence, sIdx) => (
                                 <div
                                   key={sentence.id}
-                                  className="p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] dark:bg-[#1b2b27] border border-[#eeebe3] dark:border-[#283d36] hover:border-[#ded8ca] dark:hover:border-[#38534a] transition-all"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedDetailGroup({ group, initialIndex: sIdx })
+                                  }}
+                                  className="p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] dark:bg-[#1b2b27] border border-[#eeebe3] dark:border-[#283d36] hover:border-[#ded8ca] dark:hover:border-[#38534a] transition-all cursor-pointer"
                                 >
                                   {/* Sentence mini toolbar: Number, Favorite, Edit, Delete */}
                                   <div className="flex items-center justify-between mb-1.5 gap-2">
@@ -805,9 +812,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
       {/* Sentence Detail Popup Modal */}
       <SentenceDetailModal
-        key={selectedDetailGroup?.phrase || 'none'}
+        key={`${selectedDetailGroup?.group.phrase || 'none'}-${selectedDetailGroup?.initialIndex ?? 0}`}
         isOpen={selectedDetailGroup !== null}
-        group={selectedDetailGroup}
+        group={selectedDetailGroup?.group || null}
+        initialSentenceIndex={selectedDetailGroup?.initialIndex ?? 0}
         onClose={() => setSelectedDetailGroup(null)}
         onSelectIndexToEdit={(sentence, indexId) => {
           setSelectedDetailGroup(null)

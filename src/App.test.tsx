@@ -537,6 +537,44 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('guarantees unique IDs for stored sentences and clicking a specific sentence opens its own detail', () => {
+    localStorage.clear()
+    const storedWithSameId = [
+      {
+        id: 'sentence-1',
+        text: 'She wanted to show off her new car.',
+        translation: '그녀는 새 차를 과시하고 싶어했다.',
+        indexes: [{ id: 'idx-1', phrase: 'show off' }],
+        isFavorite: false,
+      },
+      {
+        id: 'sentence-1', // Colliding ID in raw localStorage
+        text: "I didn't like pretty people because they showed off all the time.",
+        translation: '나는 예쁜 사람들이 늘 과시해서 좋아하지 않았다.',
+        indexes: [{ id: 'idx-2', phrase: 'show off' }],
+        isFavorite: false,
+      },
+    ]
+    localStorage.setItem('sentence_vault_v1', JSON.stringify(storedWithSameId))
+
+    const { unmount } = render(<App />)
+
+    // Header should say 2 sentences
+    expect(screen.getAllByText(/2 sentences/i).length).toBeGreaterThanOrEqual(1)
+
+    // Both sentences should be visible under the "show off" card
+    expect(screen.getByText(/She wanted to/i)).toBeInTheDocument()
+    expect(screen.getByText(/I didn't like pretty people/i)).toBeInTheDocument()
+
+    // Clicking the second sentence ("I didn't like pretty people...") opens its own detail
+    fireEvent.click(screen.getByText(/I didn't like pretty people/i))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(within(screen.getByRole('dialog')).getByText(/I didn't like pretty people/i)).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

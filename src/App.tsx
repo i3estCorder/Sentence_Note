@@ -67,7 +67,36 @@ export function App() {
               s.indexes.some((idx) => idx && idx.phrase && idx.phrase.trim().length > 0)
           )
           if (valid.length > 0) {
-            return valid
+            // Deduplicate exact duplicate items and guarantee unique IDs
+            const seenIds = new Set<string>()
+            const seenContents = new Set<string>()
+            const uniqueSentences: SentenceData[] = []
+
+            for (let i = 0; i < valid.length; i++) {
+              const item = valid[i]
+              const contentKey = `${item.text.trim()}__${item.indexes.map((idx: IndexPhrase) => idx.phrase.trim().toLowerCase()).sort().join(',')}`
+
+              if (seenContents.has(contentKey)) {
+                // Skip exact duplicate sentence content
+                continue
+              }
+              seenContents.add(contentKey)
+
+              let uniqueId = item.id
+              if (!uniqueId || seenIds.has(uniqueId)) {
+                uniqueId = `sentence-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`
+              }
+              seenIds.add(uniqueId)
+
+              uniqueSentences.push({
+                ...item,
+                id: uniqueId,
+              })
+            }
+
+            if (uniqueSentences.length > 0) {
+              return uniqueSentences
+            }
           }
         }
       }

@@ -29,6 +29,7 @@ interface GroupedIndex {
 interface SentenceDetailModalProps {
   isOpen: boolean
   group: GroupedIndex | null
+  initialSentenceIndex?: number
   onClose: () => void
   onSelectIndexToEdit: (sentence: SentenceData, indexId: string) => void
   onToggleFavorite: (sentenceId: string) => void
@@ -39,24 +40,26 @@ interface SentenceDetailModalProps {
 export const SentenceDetailModal: React.FC<SentenceDetailModalProps> = ({
   isOpen,
   group,
+  initialSentenceIndex = 0,
   onClose,
   onSelectIndexToEdit,
   onToggleFavorite,
   onUpdateSentence,
   onDeleteSentence,
 }) => {
-  const [selectedSentenceIndex, setSelectedSentenceIndex] = useState(0)
+  const [selectedSentenceIndex, setSelectedSentenceIndex] = useState(initialSentenceIndex)
   const [copied, setCopied] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isEditSentenceOpen, setIsEditSentenceOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [isTranslationVisible, setIsTranslationVisible] = useState(false)
 
-  // Reset translation visibility when modal opens or selected sentence changes without effect
-  const currentSentenceKey = `${group?.phrase}-${selectedSentenceIndex}`
+  // Reset selected sentence index and translation visibility when group or initialSentenceIndex changes without effect
+  const currentSentenceKey = `${group?.phrase}-${initialSentenceIndex}-${isOpen}`
   const [prevSentenceKey, setPrevSentenceKey] = useState(currentSentenceKey)
   if (prevSentenceKey !== currentSentenceKey) {
     setPrevSentenceKey(currentSentenceKey)
+    setSelectedSentenceIndex(initialSentenceIndex)
     setIsTranslationVisible(false)
   }
 

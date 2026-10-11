@@ -592,6 +592,37 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('does not display the sentence translation section in SentenceDetailModal when sentence has no translation', () => {
+    localStorage.clear()
+    const storedWithoutTranslation = [
+      {
+        id: 'sentence-no-trans',
+        text: 'She wanted to show off her new husband at the party.',
+        indexes: [{ id: 'idx-1', phrase: 'show off' }],
+        isFavorite: false,
+      },
+    ]
+    localStorage.setItem('sentence_vault_v1', JSON.stringify(storedWithoutTranslation))
+
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+
+    // Open detail modal for the sentence
+    fireEvent.click(screen.getByText(/She wanted to/i))
+
+    const modal = screen.getByRole('dialog')
+    expect(modal).toBeInTheDocument()
+
+    // "문장 뜻 (Sentence Translation)" section should NOT be present
+    expect(within(modal).queryByText(/문장 뜻/i)).not.toBeInTheDocument()
+    expect(within(modal).queryByText(/Sentence Translation/i)).not.toBeInTheDocument()
+    expect(within(modal).queryByRole('button', { name: /show translation/i })).not.toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

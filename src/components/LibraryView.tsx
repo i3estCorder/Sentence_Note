@@ -26,7 +26,7 @@ interface LibraryViewProps {
   onDeleteSentence: (sentenceId: string) => void
   onUpdateSentence?: (sentence: SentenceData) => void
   onNavigateToAdd: () => void
-  onBackToMain: () => void
+  onBackToMain?: () => void
   onOpenMobileMenu?: () => void
   onSelectIndexToEdit?: (sentence: SentenceData, indexId: string) => void
   onDeleteIndex?: (sentenceId: string, indexId: string) => void
@@ -274,28 +274,32 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         onChange={handleFileInputChange}
       />
 
-      {/* Back to Main Navigation Link */}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBackToMain}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-          <span>Back to Edit index (Main)</span>
-        </button>
+      {/* Top Bar: Back Link (if provided) and Mobile Menu Button */}
+      {(onBackToMain || onOpenMobileMenu) && (
+        <div className={`flex items-center ${onBackToMain ? 'justify-between' : 'justify-end lg:hidden'}`}>
+          {onBackToMain && (
+            <button
+              type="button"
+              onClick={onBackToMain}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Back to Library (Home)</span>
+            </button>
+          )}
 
-        {onOpenMobileMenu && (
-          <button
-            type="button"
-            onClick={onOpenMobileMenu}
-            className="lg:hidden p-1.5 rounded-lg text-[#3d5249] dark:text-[#a0b5ab] hover:bg-[#eae6dc] dark:hover:bg-[#1b2b27] transition-colors cursor-pointer"
-            aria-label="Open menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-        )}
-      </div>
+          {onOpenMobileMenu && (
+            <button
+              type="button"
+              onClick={onOpenMobileMenu}
+              className="lg:hidden p-1.5 rounded-lg text-[#3d5249] dark:text-[#a0b5ab] hover:bg-[#eae6dc] dark:hover:bg-[#1b2b27] transition-colors cursor-pointer"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Top Header & Actions Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-[#eae6dc]/60 dark:border-[#23352f]">

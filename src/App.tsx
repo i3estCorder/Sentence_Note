@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
 import { SentenceDisplay } from './components/SentenceDisplay'
@@ -47,7 +48,7 @@ export function App() {
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev)
 
   // Navigation State
-  const [currentNav, setCurrentNav] = useState<NavItemId>('edit-index')
+  const [currentNav, setCurrentNav] = useState<NavItemId>('library')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Sentences Vault State with LocalStorage persistence
@@ -192,7 +193,7 @@ export function App() {
     if (newSentence.indexes.length > 0) {
       setActiveIndexId(newSentence.indexes[0].id)
     }
-    setCurrentNav('edit-index')
+    setCurrentNav('library')
     showToast('success', 'Created new sentence')
   }
 
@@ -323,6 +324,18 @@ export function App() {
           {/* View 1: Edit an Index (Main Prototype Screen) */}
           {currentNav === 'edit-index' && (
             <>
+              {/* Back to Home Navigation Link */}
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  type="button"
+                  onClick={() => setCurrentNav('library')}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Back to Library (Home)</span>
+                </button>
+              </div>
+
               {/* Page Header */}
               <Header
                 onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
@@ -391,7 +404,6 @@ export function App() {
               onUpdateSentence={handleUpdateSentence}
               onDeleteIndex={handleDeleteIndexFromVault}
               onNavigateToAdd={() => setIsNewSentenceModalOpen(true)}
-              onBackToMain={() => setCurrentNav('edit-index')}
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
               onExportJSON={handleExportJSON}
               onImportJSON={handleImportJSON}
@@ -403,7 +415,7 @@ export function App() {
             <ReviewView
               sentences={sentences}
               onEditSentenceIndex={handleSelectSentenceToEdit}
-              onBackToMain={() => setCurrentNav('edit-index')}
+              onBackToMain={() => setCurrentNav('library')}
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
               onNavigateToLibrary={() => setCurrentNav('library')}
             />
@@ -417,7 +429,7 @@ export function App() {
               onSelectIndexToEdit={handleSelectIndexToEdit}
               onToggleFavorite={handleToggleFavorite}
               onDeleteSentence={handleDeleteSentence}
-              onBackToMain={() => setCurrentNav('edit-index')}
+              onBackToMain={() => setCurrentNav('library')}
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
             />
           )}

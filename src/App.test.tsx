@@ -3,52 +3,72 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import App from './App'
 
 describe('Sentence Note - Multi-Index Management', () => {
-  it('renders the header and primary components correctly', () => {
+  const openEditIndex = (indexPhrase = 'tucked away') => {
+    const cardsRegion = screen.getByRole('region', { name: /index cards list/i })
+    const card = within(cardsRegion)
+      .getByRole('heading', { level: 3, name: indexPhrase })
+      .closest('article')
+    if (card) {
+      const editBtn = within(card).getByRole('button', { name: /edit index/i })
+      fireEvent.click(editBtn)
+    }
+  }
+
+  it('renders the header and primary components correctly on initial load (Library as Home)', () => {
     render(<App />)
 
-    // Check Header title and subtitle
-    expect(screen.getByRole('heading', { level: 1, name: /edit an index/i })).toBeInTheDocument()
-    expect(screen.getByText(/change its phrase, tags, or remove it from this sentence/i)).toBeInTheDocument()
+    // Check Header title and subtitle for Library (Home)
+    expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
+    expect(screen.getByText(/browse indexes and sentences in your vault/i)).toBeInTheDocument()
 
     // Check Brand Section in sidebar
     expect(screen.getByRole('button', { name: /sentence note home/i })).toBeInTheDocument()
 
     // Check Sidebar Navigation items (Word index removed; Library, Review, Favorites remain)
-    expect(screen.getByRole('button', { name: /library/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /review/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /favorites/i })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /word index/i })).not.toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    expect(within(nav).getByRole('button', { name: /library/i })).toBeInTheDocument()
+    expect(within(nav).getByRole('button', { name: /review/i })).toBeInTheDocument()
+    expect(within(nav).getByRole('button', { name: /favorites/i })).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: /word index/i })).not.toBeInTheDocument()
 
     // Check '+ New sentence' button
     expect(screen.getByRole('button', { name: /new sentence/i })).toBeInTheDocument()
   })
 
-  it('navigates to another view and returns back to the main screen using back button or brand', () => {
+  it('navigates to another view and returns back to the Library home screen using back button or brand', () => {
     render(<App />)
 
     const nav = screen.getByRole('navigation', { name: /main navigation/i })
 
-    // Go to Library
-    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+    // Initially at Library (Home)
     expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
 
-    // Click "Back to Edit index (Main)"
-    const backBtn = screen.getByRole('button', { name: /back to edit index/i })
-    fireEvent.click(backBtn)
+    // Open Edit Index via card button
+    openEditIndex('tucked away')
     expect(screen.getByRole('heading', { level: 1, name: /edit an index/i })).toBeInTheDocument()
+
+    // Click "Back to Library (Home)"
+    const backBtn = screen.getByRole('button', { name: /back to library \(home\)/i })
+    fireEvent.click(backBtn)
+    expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
 
     // Go to Review
     fireEvent.click(within(nav).getByRole('button', { name: /review/i }))
     expect(screen.getByRole('heading', { level: 1, name: /review & practice/i })).toBeInTheDocument()
 
-    // Click brand logo button to return to main screen
+    // Click "Back to Library (Home)"
+    fireEvent.click(screen.getByRole('button', { name: /back to library \(home\)/i }))
+    expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
+
+    // Click brand logo button to return to Library home screen
     const brandBtn = screen.getByRole('button', { name: /sentence note home/i })
     fireEvent.click(brandBtn)
-    expect(screen.getByRole('heading', { level: 1, name: /edit an index/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
   })
 
   it('renders sentence with highlighted phrase and correct count', () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     expect(screen.getByText(/two indexed phrases in this sentence/i)).toBeInTheDocument()
     expect(screen.getByText(/the small café is/i)).toBeInTheDocument()
@@ -57,6 +77,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
   it('renders initial index badges for "tucked away" and "behind"', () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     // Current sentence has tucked away and behind badges
     expect(screen.getAllByText('tucked away').length).toBeGreaterThan(0)
@@ -69,6 +90,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
   it('allows adding multiple indexes at once via comma-separated input', async () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     const multiInput = screen.getByPlaceholderText(/type index phrases separated by comma/i)
     fireEvent.change(multiInput, { target: { value: 'bookstore, small café' } })
@@ -85,6 +107,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
   it('switches active index when clicking an item in the right sidebar', () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     // Find the right sidebar container
     const rightSidebar = screen.getByRole('complementary', { name: /sentence index list/i })
@@ -98,6 +121,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
   it('edits the selected phrase and saves changes with feedback toast', async () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     const phraseInput = screen.getByLabelText(/edit selected index/i)
     fireEvent.change(phraseInput, { target: { value: 'tucked away nicely' } })
@@ -117,6 +141,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
   it('handles delete index with confirmation modal', async () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     const deleteBtn = screen.getByRole('button', { name: /delete tucked away index/i })
     fireEvent.click(deleteBtn)
@@ -142,7 +167,7 @@ describe('Sentence Note - Multi-Index Management', () => {
   it('opens and closes mobile sidebar navigation drawer', () => {
     render(<App />)
 
-    const hamburgerBtn = screen.getByRole('button', { name: /open mobile navigation menu/i })
+    const hamburgerBtn = screen.getByRole('button', { name: /open menu/i })
     fireEvent.click(hamburgerBtn)
 
     // Mobile sidebar should be open
@@ -211,6 +236,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
   it('renders index cards in right sidebar sorted by index phrase A-Z by default', () => {
     render(<App />)
+    openEditIndex('tucked away')
 
     const rightSidebar = screen.getByRole('complementary', { name: /sentence index list/i })
     const cardsList = within(rightSidebar).getByRole('list', { name: /index cards/i })

@@ -66,11 +66,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           type="button"
           onClick={() => {
-            onSelectNav('edit-index')
+            onSelectNav('library')
             if (isMobile) onClose()
           }}
           className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] rounded-lg p-1 -m-1 text-left cursor-pointer"
-          aria-label="Sentence Note Home (Go to main screen)"
+          aria-label="Sentence Note Home (Go to Library)"
         >
           <div className="w-8 h-8 rounded-lg bg-[#133d2e] dark:bg-[#1d5743] text-white flex items-center justify-center font-bold text-xs tracking-tight shadow-sm shrink-0">
             SN

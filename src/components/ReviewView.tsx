@@ -372,7 +372,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            <span>Back to Edit index (Main)</span>
+            <span>Back to Library (Home)</span>
           </button>
         )}
 
@@ -476,7 +476,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            <span>Back to Edit index (Main)</span>
+            <span>Back to Library (Home)</span>
           </button>
         )}
 

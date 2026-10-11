@@ -25,12 +25,19 @@ interface GitCommitItem {
 // Complete Git Commit History for SentVault
 const COMMIT_HISTORY: GitCommitItem[] = [
   {
-    hash: '42a4004',
-    subject: 'feat: Add History page with Git Graph timeline and tag release V1.0',
+    hash: 'f108992',
+    subject: "style: Remove redundant secondary '번역 보기' button inside translation box in SentenceDetailModal",
     date: '2026-10-12',
     author: 'Justin',
     tag: 'V1.0',
     branch: 'main',
+    type: 'style',
+  },
+  {
+    hash: 'e22e086',
+    subject: 'feat: Add History page with Git Graph timeline and tag release V1.0',
+    date: '2026-10-12',
+    author: 'Justin',
     type: 'feat',
   },
   {

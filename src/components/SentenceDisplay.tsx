@@ -75,10 +75,10 @@ export const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
           key={`match-${match.startIndex}-${match.indexPhrase.id}`}
           type="button"
           onClick={() => onSelectIndex(match.indexPhrase.id)}
-          className={`inline-block mx-1 px-2.5 py-0.5 rounded-md font-medium transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] ${
+          className={`inline-block mx-1 px-2.5 py-0.5 rounded-md font-medium transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] dark:focus-visible:ring-[#34d399] ${
             isActive
-              ? 'bg-[#fef08a] text-[#12382c] shadow-xs ring-1 ring-amber-300'
-              : 'bg-[#dcf2e6] text-[#12382c] hover:bg-[#cceed9] cursor-pointer'
+              ? 'bg-[#fef08a] dark:bg-[#eab308] text-[#12382c] dark:text-[#0c1412] shadow-xs ring-1 ring-amber-300 dark:ring-amber-400 font-bold'
+              : 'bg-[#dcf2e6] dark:bg-[#1b352b] text-[#12382c] dark:text-[#c4ded3] hover:bg-[#cceed9] dark:hover:bg-[#234e3e] cursor-pointer'
           }`}
           title={isActive ? 'Currently editing' : `Switch to edit "${match.indexPhrase.phrase}"`}
           aria-label={
@@ -115,15 +115,15 @@ export const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
 
   return (
     <div className="mb-6">
-      <div className="text-xl sm:text-2xl md:text-[26px] leading-relaxed text-[#143d30] font-serif font-normal">
+      <div className="text-xl sm:text-2xl md:text-[26px] leading-relaxed text-[#143d30] dark:text-[#d3e2db] font-serif font-normal">
         {renderInteractiveSentence()}
       </div>
 
-      <p className="text-xs sm:text-sm text-[#7c8d85] mt-3 font-normal">
+      <p className="text-xs sm:text-sm text-[#7c8d85] dark:text-[#8ea49a] mt-3 font-normal">
         {countText}
       </p>
 
-      <div className="mt-6 border-b border-[#ece7dc]" />
+      <div className="mt-6 border-b border-[#ece7dc] dark:border-[#23352f]" />
     </div>
   )
 }

@@ -279,7 +279,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         <button
           type="button"
           onClick={onBackToMain}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] hover:text-[#12382c] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] group cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
           <span>Back to Edit index (Main)</span>
@@ -289,7 +289,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="lg:hidden p-1.5 rounded-lg text-[#3d5249] hover:bg-[#eae6dc] transition-colors cursor-pointer"
+            className="lg:hidden p-1.5 rounded-lg text-[#3d5249] dark:text-[#a0b5ab] hover:bg-[#eae6dc] dark:hover:bg-[#1b2b27] transition-colors cursor-pointer"
             aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
@@ -298,21 +298,21 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       </div>
 
       {/* Top Header & Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-[#eae6dc]/60">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-[#eae6dc]/60 dark:border-[#23352f]">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#12382c]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#12382c] dark:text-[#e4ede8]">
               Sentence Library
             </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#133d2e] text-white shadow-2xs">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#133d2e] dark:bg-[#1d5743] text-white shadow-2xs">
               {sentences.length} sentences
             </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#dcf2e6] text-[#133d2e]">
-              <Sparkles className="w-3 h-3 text-[#133d2e]" />
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#dcf2e6] dark:bg-[#1f3d32] text-[#133d2e] dark:text-[#a7f3d0]">
+              <Sparkles className="w-3 h-3 text-[#133d2e] dark:text-[#34d399]" />
               2-Tier Index Grouping
             </span>
           </div>
-          <p className="text-sm text-[#5f756c] mt-1">
+          <p className="text-sm text-[#5f756c] dark:text-[#8ea49a] mt-1">
             Browse indexes and sentences in your vault ({groupedIndexList.length} unique index cards &bull; {alphabetSections.length} alphabet chapters &bull; {sentences.length} sentences).
           </p>
         </div>
@@ -324,9 +324,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               type="button"
               onClick={onExportJSON}
               title="Download all sentences as a JSON file"
-              className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white hover:bg-[#f6f4ee] active:scale-[0.98] border border-[#dedad0] text-[#12382c] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-[#486358]" />
+              <Download className="w-3.5 h-3.5 text-[#486358] dark:text-[#8ea49a]" />
               <span>Export JSON</span>
             </button>
           )}
@@ -336,9 +336,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               title="Import sentences from a JSON backup file"
-              className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white hover:bg-[#f6f4ee] active:scale-[0.98] border border-[#dedad0] text-[#12382c] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
             >
-              <Upload className="w-3.5 h-3.5 text-[#486358]" />
+              <Upload className="w-3.5 h-3.5 text-[#486358] dark:text-[#8ea49a]" />
               <span>Import JSON</span>
             </button>
           )}
@@ -346,7 +346,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           <button
             type="button"
             onClick={onNavigateToAdd}
-            className="inline-flex items-center gap-1.5 h-9.5 px-4 bg-[#133d2e] hover:bg-[#0c2b20] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-9.5 px-4 bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.4]" aria-hidden="true" />
             <span>New sentence</span>
@@ -358,13 +358,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8d85]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8d85] dark:text-[#8ea49a]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search index keywords or sentence context..."
-            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-[#dedad0] text-sm text-[#12382c] placeholder-[#8c9e96] shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 focus:border-[#133d2e] transition-all"
+            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] text-sm text-[#12382c] dark:text-[#e4ede8] placeholder-[#8c9e96] dark:placeholder-[#6a8076] shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] transition-all"
           />
         </div>
 
@@ -375,18 +375,18 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <label htmlFor="index-sort-select" className="sr-only">
               Sort index order
             </label>
-            <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-[#dedad0] text-xs font-medium text-[#234235] shadow-2xs">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#5e786d]" />
-              <span className="text-[#7c8d85]">Sort:</span>
+            <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] text-xs font-medium text-[#234235] dark:text-[#c4ded3] shadow-2xs">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#5e786d] dark:text-[#8ea49a]" />
+              <span className="text-[#7c8d85] dark:text-[#8ea49a]">Sort:</span>
               <select
                 id="index-sort-select"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                className="bg-transparent font-semibold text-[#12382c] focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent font-semibold text-[#12382c] dark:text-[#e4ede8] focus:outline-none cursor-pointer pr-1"
               >
-                <option value="index-asc">Index (A → Z)</option>
-                <option value="index-desc">Index (Z → A)</option>
-                <option value="original">Original</option>
+                <option value="index-asc" className="dark:bg-[#14201c]">Index (A → Z)</option>
+                <option value="index-desc" className="dark:bg-[#14201c]">Index (Z → A)</option>
+                <option value="original" className="dark:bg-[#14201c]">Original</option>
               </select>
             </div>
           </div>
@@ -466,7 +466,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {/* Tier 3: Multiple Context Sentences Grouped Inside Card */}
       {/* ------------------------------------------------------------- */}
       <div className="space-y-10" role="region" aria-label="Index cards list">
-        <div className="flex items-center justify-between text-xs font-medium text-[#647c72] px-1">
+        <div className="flex items-center justify-between text-xs font-medium text-[#647c72] dark:text-[#8ea49a] px-1">
             <span>
               Showing {groupedIndexList.length} unique index {groupedIndexList.length === 1 ? 'card' : 'cards'} in {alphabetSections.length} alphabet chapters
               {sortOrder === 'index-asc' && ' (sorted by index A → Z)'}
@@ -485,7 +485,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 className="scroll-mt-24 space-y-4"
               >
                 {/* TIER 1: Alphabet Section Header */}
-                <div className="flex items-center justify-between pb-2 border-b-2 border-[#e8e4da]">
+                <div className="flex items-center justify-between pb-2 border-b-2 border-[#e8e4da] dark:border-[#283d36]">
                   <div className="flex items-center gap-3">
                     <div
                       className={`inline-flex items-center justify-center min-w-8 h-7 px-2.5 rounded-lg text-xs font-black uppercase tracking-wider shadow-xs ${palette.bg} ${palette.text}`}
@@ -494,7 +494,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     </div>
                   </div>
 
-                  <span className="text-xs font-medium text-[#7c8d85]">
+                  <span className="text-xs font-medium text-[#7c8d85] dark:text-[#8ea49a]">
                     {section.indexes.length} {section.indexes.length === 1 ? 'index' : 'indexes'}
                   </span>
                 </div>
@@ -513,30 +513,30 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                         key={`${section.letter}-${group.phrase}-${groupIdx}`}
                         data-scroll-anchor={`${section.letter} · ${group.phrase}`}
                         onClick={() => setSelectedDetailGroup(group)}
-                        className="scroll-mt-24 bg-white rounded-2xl p-5 sm:p-6 border border-[#ece7dc] hover:border-[#133d2e]/30 shadow-[0_2px_10px_-2px_rgba(20,50,40,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(20,50,40,0.08)] transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:-translate-y-0.5"
+                        className="scroll-mt-24 bg-white dark:bg-[#14201c] rounded-2xl p-5 sm:p-6 border border-[#ece7dc] dark:border-[#23352f] hover:border-[#133d2e]/30 dark:hover:border-[#34d399]/30 shadow-[0_2px_10px_-2px_rgba(20,50,40,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(20,50,40,0.08)] transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:-translate-y-0.5"
                       >
                         <div>
                           {/* Card Header: Index Phrase as primary hero */}
-                          <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#f4f1e8]">
+                          <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#f4f1e8] dark:border-[#23352f]">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                                <span className="text-[11px] font-bold tracking-wider px-2.5 py-0.5 rounded-lg bg-[#e8f5ee] text-[#134937] ring-1 ring-[#c5e6d3]">
+                                <span className="text-[11px] font-bold tracking-wider px-2.5 py-0.5 rounded-lg bg-[#e8f5ee] dark:bg-[#1b352b] text-[#134937] dark:text-[#a7f3d0] ring-1 ring-[#c5e6d3] dark:ring-[#235845]">
                                   {group.phrase}
                                 </span>
                                 {hasFavorite && (
-                                  <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 ring-1 ring-amber-200/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                                  <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 ring-1 ring-amber-200/80 dark:ring-amber-800/60 px-2 py-0.5 rounded-lg flex items-center gap-1">
                                     <Star className="w-3 h-3 fill-current text-amber-500" />
                                     Favorite
                                   </span>
                                 )}
                                 {group.sentences.length > 1 && (
-                                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[#fef3c7] text-[#78350f] ring-1 ring-amber-300/70">
+                                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[#fef3c7] dark:bg-[#3a2e10] text-[#78350f] dark:text-[#fde68a] ring-1 ring-amber-300/70 dark:ring-amber-700/60">
                                     {group.sentences.length} sentences
                                   </span>
                                 )}
                               </div>
 
-                              <h3 className="text-lg sm:text-xl font-bold text-[#12382c] tracking-tight truncate">
+                              <h3 className="text-lg sm:text-xl font-bold text-[#12382c] dark:text-[#e4ede8] tracking-tight truncate">
                                 {group.phrase}
                               </h3>
                             </div>
@@ -552,8 +552,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                   }}
                                   className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
                                     firstSentence.isFavorite
-                                      ? 'text-amber-500 hover:bg-amber-50'
-                                      : 'text-[#8c9e96] hover:text-[#12382c] hover:bg-[#f6f4ee]'
+                                      ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                                      : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27]'
                                   }`}
                                   aria-label={
                                     firstSentence.isFavorite
@@ -576,7 +576,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     e.stopPropagation()
                                     onDeleteIndex(firstSentence.id, targetIndexObj.id)
                                   }}
-                                  className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+                                  className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                   aria-label={`Delete ${group.phrase} index`}
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -588,7 +588,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     e.stopPropagation()
                                     setSentenceToDelete(firstSentence)
                                   }}
-                                  className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+                                  className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                   aria-label="Delete sentence"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -603,11 +603,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                               {group.sentences.map((sentence, sIdx) => (
                                 <div
                                   key={sentence.id}
-                                  className="p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] border border-[#eeebe3] hover:border-[#ded8ca] transition-all"
+                                  className="p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] dark:bg-[#1b2b27] border border-[#eeebe3] dark:border-[#283d36] hover:border-[#ded8ca] dark:hover:border-[#38534a] transition-all"
                                 >
                                   {/* Sentence mini toolbar: Number, Favorite, Edit, Delete */}
                                   <div className="flex items-center justify-between mb-1.5 gap-2">
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ede9df] text-[#4f675b]">
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ede9df] dark:bg-[#273a34] text-[#4f675b] dark:text-[#9eb4aa]">
                                       Sentence {sIdx + 1}
                                     </span>
 
@@ -620,8 +620,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                         }}
                                         className={`w-6.5 h-6.5 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
                                           sentence.isFavorite
-                                            ? 'text-amber-500 hover:bg-amber-50'
-                                            : 'text-[#9bad9f] hover:text-[#12382c] hover:bg-[#eae5d8]'
+                                            ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                                            : 'text-[#9bad9f] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#eae5d8] dark:hover:bg-[#20342f]'
                                         }`}
                                         title={sentence.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
                                         aria-label="Toggle favorite"
@@ -639,7 +639,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                           e.stopPropagation()
                                           setSentenceToEdit(sentence)
                                         }}
-                                        className="w-6.5 h-6.5 rounded-lg flex items-center justify-center text-[#8c9e96] hover:text-[#12382c] hover:bg-[#eae5d8] transition-colors cursor-pointer"
+                                        className="w-6.5 h-6.5 rounded-lg flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#eae5d8] dark:hover:bg-[#20342f] transition-colors cursor-pointer"
                                         title="문장 수정"
                                         aria-label="Edit sentence"
                                       >
@@ -652,7 +652,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                           e.stopPropagation()
                                           setSentenceToDelete(sentence)
                                         }}
-                                        className="w-6.5 h-6.5 rounded-lg flex items-center justify-center text-[#8c9e96] hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+                                        className="w-6.5 h-6.5 rounded-lg flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                         title="문장 삭제"
                                         aria-label="Delete sentence"
                                       >
@@ -661,7 +661,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     </div>
                                   </div>
 
-                                  <p className="text-sm sm:text-base text-[#143d30] font-serif leading-relaxed">
+                                  <p className="text-sm sm:text-base text-[#143d30] dark:text-[#d3e2db] font-serif leading-relaxed">
                                     {highlightMultiPhrases(
                                       sentence.text,
                                       group.phrase,
@@ -672,7 +672,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                   </p>
 
                                   {sentence.translation && (
-                                    <p className="mt-1.5 text-xs text-[#527063] font-sans">
+                                    <p className="mt-1.5 text-xs text-[#527063] dark:text-[#8ea49a] font-sans">
                                       {sentence.translation}
                                     </p>
                                   )}
@@ -683,8 +683,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                         </div>
 
                         {/* Card Footer */}
-                        <div className="pt-3.5 mt-3 border-t border-[#f2ede4] flex items-center justify-between gap-3">
-                          <div className="text-xs text-[#71857c] font-medium truncate">
+                        <div className="pt-3.5 mt-3 border-t border-[#f2ede4] dark:border-[#23352f] flex items-center justify-between gap-3">
+                          <div className="text-xs text-[#71857c] dark:text-[#8ea49a] font-medium truncate">
                             {group.sentences.length}{' '}
                             {group.sentences.length === 1 ? 'sentence' : 'sentences'} tagged with "{group.phrase}"
                           </div>
@@ -700,7 +700,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                   onSelectSentenceToEdit(firstSentence)
                                 }
                               }}
-                              className="inline-flex items-center justify-center gap-1.5 h-8.5 px-3.5 rounded-xl text-xs font-semibold bg-[#133d2e] hover:bg-[#0c2b20] active:scale-[0.98] text-white transition-all cursor-pointer shadow-2xs hover:shadow-xs shrink-0"
+                              className="inline-flex items-center justify-center gap-1.5 h-8.5 px-3.5 rounded-xl text-xs font-semibold bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white transition-all cursor-pointer shadow-2xs hover:shadow-xs shrink-0"
                             >
                               <Edit3 className="w-3.5 h-3.5 stroke-[2.2]" />
                               <span>Edit index</span>
@@ -716,10 +716,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           })}
 
           {alphabetSections.length === 0 && (
-            <div className="bg-white rounded-2xl p-12 text-center border border-[#ece8df]">
-              <BookOpen className="w-10 h-10 text-[#8c9e96] mx-auto mb-3 stroke-[1.5]" />
-              <h3 className="text-base font-semibold text-[#12382c]">No index cards found</h3>
-              <p className="text-xs text-[#7c8d85] mt-1">
+            <div className="bg-white dark:bg-[#14201c] rounded-2xl p-12 text-center border border-[#ece8df] dark:border-[#23352f]">
+              <BookOpen className="w-10 h-10 text-[#8c9e96] dark:text-[#6a8076] mx-auto mb-3 stroke-[1.5]" />
+              <h3 className="text-base font-semibold text-[#12382c] dark:text-[#e4ede8]">No index cards found</h3>
+              <p className="text-xs text-[#7c8d85] dark:text-[#8ea49a] mt-1">
                 Try adjusting your search query or add a new sentence with indexed phrases.
               </p>
             </div>

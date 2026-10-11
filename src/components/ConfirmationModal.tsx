@@ -47,36 +47,36 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl border border-[#ece8de] z-10 animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-md bg-white dark:bg-[#14201c] rounded-2xl p-6 shadow-2xl border border-[#ece8de] dark:border-[#23352f] z-10 animate-in fade-in zoom-in-95 duration-150">
         <button
           type="button"
           onClick={onCancel}
-          className="absolute top-4 right-4 p-1.5 text-[#6c7d75] hover:text-[#12382c] hover:bg-[#f2efe6] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e]"
+          className="absolute top-4 right-4 p-1.5 text-[#6c7d75] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#f2efe6] dark:hover:bg-[#1b2b27] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e]"
           aria-label="Close dialog"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-rose-950/60 text-red-700 dark:text-rose-400 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-5 h-5 stroke-[2.2]" />
           </div>
 
           <div className="flex-1">
-            <h3 id="modal-title" className="text-base font-semibold text-[#12382c]">
+            <h3 id="modal-title" className="text-base font-semibold text-[#12382c] dark:text-[#e4ede8]">
               {title}
             </h3>
-            <p className="text-sm text-[#5f746b] mt-1.5 leading-relaxed">
+            <p className="text-sm text-[#5f746b] dark:text-[#8ea49a] mt-1.5 leading-relaxed">
               {message}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-[#f4f1e8]">
+        <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-[#f4f1e8] dark:border-[#23352f]">
           <button
             type="button"
             onClick={onCancel}
-            className="h-9.5 px-4 text-xs sm:text-sm font-semibold text-[#465b52] bg-white border border-[#dedad0] hover:bg-[#f7f5ed] active:scale-[0.98] rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] cursor-pointer shadow-2xs"
+            className="h-9.5 px-4 text-xs sm:text-sm font-semibold text-[#465b52] dark:text-[#a0b5ab] bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] hover:bg-[#f7f5ed] dark:hover:bg-[#1b2b27] active:scale-[0.98] rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] cursor-pointer shadow-2xs"
           >
             {cancelLabel}
           </button>

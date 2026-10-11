@@ -15,8 +15,37 @@ import { initialSentences } from './data/mockData'
 import type { NavItemId, SentenceData, IndexPhrase } from './types'
 
 const STORAGE_KEY = 'sentence_vault_v1'
+const THEME_KEY = 'sentence_note_theme'
 
 export function App() {
+  // Theme state with localStorage persistence
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(THEME_KEY)
+      if (saved) return saved === 'dark'
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    } catch {
+      return false
+    }
+  })
+
+  // Sync theme class to documentElement
+  useEffect(() => {
+    try {
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark')
+        localStorage.setItem(THEME_KEY, 'dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+        localStorage.setItem(THEME_KEY, 'light')
+      }
+    } catch (e) {
+      console.error('Failed to sync theme:', e)
+    }
+  }, [isDarkMode])
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev)
+
   // Navigation State
   const [currentNav, setCurrentNav] = useState<NavItemId>('edit-index')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -264,7 +293,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f6f1] text-[#16382c] flex flex-col lg:flex-row antialiased selection:bg-[#dcf2e6] selection:text-[#12382c]">
+    <div className="min-h-screen bg-[#f7f6f1] dark:bg-[#0c1412] text-[#16382c] dark:text-[#e4ede8] flex flex-col lg:flex-row antialiased selection:bg-[#dcf2e6] selection:text-[#12382c] dark:selection:bg-[#1a4435] dark:selection:text-[#cbf3e2] transition-colors duration-150">
       {/* Accessible Skip Link */}
       <a
         href="#main-content"
@@ -281,6 +310,8 @@ export function App() {
         onClose={() => setIsMobileMenuOpen(false)}
         sentenceCount={sentences.length}
         favoritesCount={sentences.filter((s) => s.isFavorite).length}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
       />
 
       {/* Main Layout Area */}
@@ -296,6 +327,8 @@ export function App() {
               <Header
                 onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
                 onNewSentenceClick={() => setIsNewSentenceModalOpen(true)}
+                isDarkMode={isDarkMode}
+                onToggleDarkMode={toggleDarkMode}
               />
 
               {/* Main 2-Column Content Grid */}
@@ -303,7 +336,7 @@ export function App() {
                 {/* Primary Card: Sentence display & Multi-Index Edit Form */}
                 <section
                   aria-labelledby="edit-index-heading"
-                  className="lg:col-span-8 xl:col-span-8 bg-white rounded-2xl p-6 sm:p-8 border border-[#ece8df] shadow-xs"
+                  className="lg:col-span-8 xl:col-span-8 bg-white dark:bg-[#14201c] rounded-2xl p-6 sm:p-8 border border-[#ece8df] dark:border-[#23352f] shadow-xs transition-colors"
                 >
                   <h2 id="edit-index-heading" className="sr-only">
                     Edit Index Form

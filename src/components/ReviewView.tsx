@@ -341,17 +341,17 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
   // Empty vault state
   if (sentences.length === 0 || allReviewItems.length === 0) {
     return (
-      <div className="bg-white rounded-3xl p-12 text-center border border-[#ece8df] shadow-xs max-w-2xl mx-auto">
-        <BookOpen className="w-12 h-12 text-[#133d2e] mx-auto mb-4 stroke-[1.5]" />
-        <h2 className="text-xl font-bold text-[#12382c]">No sentences to review</h2>
-        <p className="text-sm text-[#5f756c] mt-2">
+      <div className="bg-white dark:bg-[#14201c] rounded-3xl p-12 text-center border border-[#ece8df] dark:border-[#23352f] shadow-xs max-w-2xl mx-auto">
+        <BookOpen className="w-12 h-12 text-[#133d2e] dark:text-[#34d399] mx-auto mb-4 stroke-[1.5]" />
+        <h2 className="text-xl font-bold text-[#12382c] dark:text-[#e4ede8]">No sentences to review</h2>
+        <p className="text-sm text-[#5f756c] dark:text-[#8ea49a] mt-2">
           Add sentences with index phrases in your vault first to start Anki-style spaced repetition reviews.
         </p>
         {onNavigateToLibrary && (
           <button
             type="button"
             onClick={onNavigateToLibrary}
-            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
           >
             <span>Go to Sentence Library</span>
           </button>
@@ -369,38 +369,38 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
           <button
             type="button"
             onClick={onBackToMain}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] hover:text-[#12382c] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] group cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to Edit index (Main)</span>
           </button>
         )}
 
-        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-[#ece8df] shadow-xs text-center flex flex-col items-center">
-          <div className="w-16 h-16 rounded-2xl bg-[#dcf2e6] text-[#133d2e] flex items-center justify-center mb-5 shadow-2xs">
+        <div className="bg-white dark:bg-[#14201c] rounded-3xl p-8 sm:p-10 border border-[#ece8df] dark:border-[#23352f] shadow-xs text-center flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#dcf2e6] dark:bg-[#1f3d32] text-[#133d2e] dark:text-[#34d399] flex items-center justify-center mb-5 shadow-2xs">
             <Trophy className="w-8 h-8 stroke-[2.2]" />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#12382c] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#12382c] dark:text-[#e4ede8] tracking-tight">
             오늘의 복습 완료!
           </h2>
-          <p className="text-sm text-[#5a7267] mt-2 max-w-md">
+          <p className="text-sm text-[#5a7267] dark:text-[#8ea49a] mt-2 max-w-md">
             축하합니다! 현재 덱에 배정된 모든 카드를 Anki 간격 반복(SRS) 원칙에 따라 복습했습니다.
           </p>
 
           {/* Session Statistics Cards */}
-          <div className="grid grid-cols-3 gap-3 w-full max-w-md mt-6 pt-6 border-t border-[#f2ede4]">
-            <div className="p-3.5 rounded-2xl bg-[#f8f7f2] border border-[#ebe7dc]">
-              <div className="text-xs font-semibold text-[#7c8d85]">완료한 카드</div>
-              <div className="text-xl font-black text-[#12382c] mt-1">{sessionCompletedCount}</div>
+          <div className="grid grid-cols-3 gap-3 w-full max-w-md mt-6 pt-6 border-t border-[#f2ede4] dark:border-[#23352f]">
+            <div className="p-3.5 rounded-2xl bg-[#f8f7f2] dark:bg-[#1b2b27] border border-[#ebe7dc] dark:border-[#283d36]">
+              <div className="text-xs font-semibold text-[#7c8d85] dark:text-[#8ea49a]">완료한 카드</div>
+              <div className="text-xl font-black text-[#12382c] dark:text-[#e4ede8] mt-1">{sessionCompletedCount}</div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#fef2f2] border border-rose-200">
-              <div className="text-xs font-semibold text-rose-700">다시(Again)</div>
-              <div className="text-xl font-black text-rose-800 mt-1">{sessionAgainCount}</div>
+            <div className="p-3.5 rounded-2xl bg-[#fef2f2] dark:bg-[#2c1818] border border-rose-200 dark:border-rose-900/60">
+              <div className="text-xs font-semibold text-rose-700 dark:text-rose-400">다시(Again)</div>
+              <div className="text-xl font-black text-rose-800 dark:text-rose-300 mt-1">{sessionAgainCount}</div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#ecfdf5] border border-emerald-200">
-              <div className="text-xs font-semibold text-emerald-700">기억 성공</div>
-              <div className="text-xl font-black text-emerald-800 mt-1">{sessionGoodCount}</div>
+            <div className="p-3.5 rounded-2xl bg-[#ecfdf5] dark:bg-[#132c21] border border-emerald-200 dark:border-emerald-900/60">
+              <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">기억 성공</div>
+              <div className="text-xl font-black text-emerald-800 dark:text-emerald-300 mt-1">{sessionGoodCount}</div>
             </div>
           </div>
 
@@ -409,7 +409,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
             <button
               type="button"
               onClick={() => startSession(allReviewItems)}
-              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               <RotateCcw className="w-4 h-4 stroke-[2.2]" />
               <span>전체 다시 복습하기 (Study again)</span>
@@ -419,7 +419,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToLibrary}
-                className="inline-flex items-center gap-1.5 h-10 px-4.5 rounded-xl bg-white hover:bg-[#f6f4ee] active:scale-[0.98] border border-[#dedad0] text-[#12382c] text-xs sm:text-sm font-semibold shadow-2xs transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 h-10 px-4.5 rounded-xl bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs sm:text-sm font-semibold shadow-2xs transition-all cursor-pointer"
               >
                 <span>Library로 이동</span>
               </button>
@@ -452,11 +452,11 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
       <span className="leading-relaxed">
         {before}
         {isRevealed ? (
-          <span className="bg-[#fef08a] text-[#12382c] px-3 py-1 rounded-xl font-bold mx-1.5 shadow-xs ring-1 ring-amber-300 animate-in fade-in">
+          <span className="bg-[#fef08a] dark:bg-[#eab308] text-[#12382c] dark:text-[#0c1412] px-3 py-1 rounded-xl font-bold mx-1.5 shadow-xs ring-1 ring-amber-300 dark:ring-amber-400 animate-in fade-in">
             {matched}
           </span>
         ) : (
-          <span className="inline-block bg-[#efebe0] text-[#788e83] border-2 border-dashed border-[#c5bfb0] px-4 py-1 rounded-xl font-mono text-sm mx-1.5 min-w-28 text-center select-none shadow-2xs">
+          <span className="inline-block bg-[#efebe0] dark:bg-[#20322b] text-[#788e83] dark:text-[#8ea49a] border-2 border-dashed border-[#c5bfb0] dark:border-[#334d42] px-4 py-1 rounded-xl font-mono text-sm mx-1.5 min-w-28 text-center select-none shadow-2xs">
             ? ? ? ?
           </span>
         )}
@@ -473,7 +473,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
           <button
             type="button"
             onClick={onBackToMain}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] hover:text-[#12382c] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] group cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#486358] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] transition-colors py-1 px-2 -ml-2 rounded-lg hover:bg-[#ede9df] dark:hover:bg-[#1b2b27] group cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to Edit index (Main)</span>
@@ -484,7 +484,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="lg:hidden p-1.5 rounded-lg text-[#3d5249] hover:bg-[#eae6dc] transition-colors"
+            className="lg:hidden p-1.5 rounded-lg text-[#3d5249] dark:text-[#a0b5ab] hover:bg-[#eae6dc] dark:hover:bg-[#1b2b27] transition-colors"
             aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
@@ -493,42 +493,42 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
       </div>
 
       {/* Top Header & Anki 3-Color Deck Counter */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-[#eae6dc]/60">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-[#eae6dc]/60 dark:border-[#23352f]">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#12382c]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#12382c] dark:text-[#e4ede8]">
               Review & Practice
             </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#dcf2e6] text-[#133d2e]">
-              <Sparkles className="w-3 h-3 text-[#133d2e]" />
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#dcf2e6] dark:bg-[#1f3d32] text-[#133d2e] dark:text-[#a7f3d0]">
+              <Sparkles className="w-3 h-3 text-[#133d2e] dark:text-[#34d399]" />
               Anki Spaced Repetition (SRS)
             </span>
           </div>
-          <p className="text-sm text-[#5f756c] mt-1 font-normal">
+          <p className="text-sm text-[#5f756c] dark:text-[#8ea49a] mt-1 font-normal">
             망각 곡선에 맞춘 4단계 간격 반복(SM-2) 플래시카드로 색인 표현을 기억하세요.
           </p>
         </div>
 
         {/* Anki Signature 3-Color Badges */}
-        <div className="flex items-center gap-2 self-start sm:self-center bg-white px-3.5 py-1.5 rounded-2xl border border-[#dedad0] shadow-2xs">
+        <div className="flex items-center gap-2 self-start sm:self-center bg-white dark:bg-[#14201c] px-3.5 py-1.5 rounded-2xl border border-[#dedad0] dark:border-[#283d36] shadow-2xs">
           <div
-            className="flex items-center gap-1.5 text-xs font-bold text-blue-600"
+            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400"
             title="New cards to learn"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block" />
             <span>{deckCounts.newCards} New</span>
           </div>
-          <span className="text-[#d5cfc2]">&bull;</span>
+          <span className="text-[#d5cfc2] dark:text-[#3e564d]">&bull;</span>
           <div
-            className="flex items-center gap-1.5 text-xs font-bold text-rose-600"
+            className="flex items-center gap-1.5 text-xs font-bold text-rose-600 dark:text-rose-400"
             title="Learning / Again cards queued in this session"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
             <span>{deckCounts.learnCards} Learn</span>
           </div>
-          <span className="text-[#d5cfc2]">&bull;</span>
+          <span className="text-[#d5cfc2] dark:text-[#3e564d]">&bull;</span>
           <div
-            className="flex items-center gap-1.5 text-xs font-bold text-emerald-700"
+            className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400"
             title="Review cards due today"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block" />
@@ -538,51 +538,51 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
       </div>
 
       {/* Progress & Card Position */}
-      <div className="flex items-center justify-between text-xs text-[#7c8d85] font-medium px-1">
+      <div className="flex items-center justify-between text-xs text-[#7c8d85] dark:text-[#8ea49a] font-medium px-1">
         <span>
-          Cards remaining in session: <strong className="text-[#12382c]">{queue.length}</strong>
+          Cards remaining in session: <strong className="text-[#12382c] dark:text-[#e4ede8]">{queue.length}</strong>
           {sessionCompletedCount > 0 && ` (Finished: ${sessionCompletedCount})`}
         </span>
 
         {/* Card SRS Metadata chip */}
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-lg bg-[#f0ede4] text-[#4d6357] text-[11px] font-semibold">
+          <span className="px-2 py-0.5 rounded-lg bg-[#f0ede4] dark:bg-[#1b2b27] text-[#4d6357] dark:text-[#9eb4aa] text-[11px] font-semibold">
             Interval: {currentItem.stats.interval}d &bull; Reps: {currentItem.stats.reps}
           </span>
         </div>
       </div>
 
       {/* Main Flashcard Card */}
-      <div className="bg-white rounded-3xl p-7 sm:p-10 border border-[#ece7dc] shadow-[0_4px_20px_-4px_rgba(20,50,40,0.06)] flex flex-col items-center relative overflow-hidden">
+      <div className="bg-white dark:bg-[#14201c] rounded-3xl p-7 sm:p-10 border border-[#ece7dc] dark:border-[#23352f] shadow-[0_4px_20px_-4px_rgba(20,50,40,0.06)] flex flex-col items-center relative overflow-hidden">
         {/* Top prompt */}
-        <div className="w-full flex items-center justify-between pb-3.5 border-b border-[#f4f1e8] text-xs font-semibold text-[#7c8d85] uppercase tracking-wider">
+        <div className="w-full flex items-center justify-between pb-3.5 border-b border-[#f4f1e8] dark:border-[#23352f] text-xs font-semibold text-[#7c8d85] dark:text-[#8ea49a] uppercase tracking-wider">
           <span>Recall the missing index phrase</span>
           {currentItem.targetIndex.meaning && (
-            <span className="text-[11px] font-bold text-[#1a533f] bg-[#eef7f2] px-2.5 py-0.5 rounded-lg border border-emerald-100">
+            <span className="text-[11px] font-bold text-[#1a533f] dark:text-[#a7f3d0] bg-[#eef7f2] dark:bg-[#1b352b] px-2.5 py-0.5 rounded-lg border border-emerald-100 dark:border-[#235845]">
               뜻: {currentItem.targetIndex.meaning}
             </span>
           )}
         </div>
 
         {/* Context Sentence Masked */}
-        <div className="text-xl sm:text-2xl text-[#143d30] font-serif my-8 text-center max-w-2xl leading-relaxed">
+        <div className="text-xl sm:text-2xl text-[#143d30] dark:text-[#d3e2db] font-serif my-8 text-center max-w-2xl leading-relaxed">
           {renderSentenceWithMask()}
         </div>
 
         {/* Answer Reveal Area */}
         {isRevealed && (
-          <div className="mt-2 pt-6 border-t border-[#f2ede4] w-full max-w-xl animate-in fade-in zoom-in-98 duration-200 space-y-4">
+          <div className="mt-2 pt-6 border-t border-[#f2ede4] dark:border-[#23352f] w-full max-w-xl animate-in fade-in zoom-in-98 duration-200 space-y-4">
             {/* Target phrase highlight banner with TTS */}
-            <div className="p-4 rounded-2xl bg-[#faf9f3] border border-[#ebe6d8] flex items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-[#faf9f3] dark:bg-[#1b2b27] border border-[#ebe6d8] dark:border-[#283d36] flex items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#788e83] block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#788e83] dark:text-[#8ea49a] block">
                   Target Index Phrase
                 </span>
-                <span className="text-lg font-black text-[#12382c] tracking-tight">
+                <span className="text-lg font-black text-[#12382c] dark:text-[#e4ede8] tracking-tight">
                   {currentItem.targetIndex.phrase}
                 </span>
                 {currentItem.targetIndex.meaning && (
-                  <span className="text-xs text-[#3a6352] ml-2 font-semibold">
+                  <span className="text-xs text-[#3a6352] dark:text-[#a7f3d0] ml-2 font-semibold">
                     ({currentItem.targetIndex.meaning})
                   </span>
                 )}
@@ -595,7 +595,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                   isSpeaking
                     ? 'bg-[#133d2e] text-white shadow-xs'
-                    : 'bg-white hover:bg-[#ede9df] text-[#12382c] border border-[#d8d3c7] shadow-2xs'
+                    : 'bg-white dark:bg-[#14201c] hover:bg-[#ede9df] dark:hover:bg-[#20342f] text-[#12382c] dark:text-[#e4ede8] border border-[#d8d3c7] dark:border-[#283d36] shadow-2xs'
                 }`}
               >
                 <Volume2 className="w-4 h-4 stroke-[2.2]" />
@@ -604,17 +604,17 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
 
             {/* Translation & Notes (if available) */}
             {currentItem.sentence.translation && (
-              <div className="text-sm text-[#446657] font-sans px-1">
-                <span className="font-bold text-[#12382c] mr-1.5">번역:</span>
+              <div className="text-sm text-[#446657] dark:text-[#a0b5ab] font-sans px-1">
+                <span className="font-bold text-[#12382c] dark:text-[#e4ede8] mr-1.5">번역:</span>
                 {currentItem.sentence.translation}
               </div>
             )}
 
             {currentItem.sentence.notes && (
-              <div className="text-xs text-[#5f746b] bg-[#fdfdfc] p-3 rounded-xl border border-[#ede9df] flex items-start gap-2">
-                <Info className="w-3.5 h-3.5 text-[#133d2e] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#5f746b] dark:text-[#8ea49a] bg-[#fdfdfc] dark:bg-[#172420] p-3 rounded-xl border border-[#ede9df] dark:border-[#23352f] flex items-start gap-2">
+                <Info className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399] shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
-                  <span className="font-bold text-[#12382c] block mb-0.5">추가 정보 (Memo):</span>
+                  <span className="font-bold text-[#12382c] dark:text-[#e4ede8] block mb-0.5">추가 정보 (Memo):</span>
                   {currentItem.sentence.notes}
                 </div>
               </div>
@@ -629,12 +629,12 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRevealed(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-8 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] active:scale-[0.98] text-white text-sm font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-8 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-sm font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer"
               >
                 <Eye className="w-4 h-4 stroke-[2.2]" />
                 <span>정답 보기 (Reveal answer)</span>
               </button>
-              <span className="text-[11px] text-[#8ca097] flex items-center gap-1 mt-1">
+              <span className="text-[11px] text-[#8ca097] dark:text-[#788e83] flex items-center gap-1 mt-1">
                 <Keyboard className="w-3 h-3" />
                 단축키: <strong>Space</strong> 또는 <strong>Enter</strong>
               </span>
@@ -646,13 +646,13 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('again')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
+                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
                 >
-                  <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
                     {getIntervalPreview('again', currentItem.stats)}
                   </span>
                   <span className="text-xs font-bold mt-0.5">Again</span>
-                  <span className="text-[10px] text-rose-500 font-mono mt-0.5 group-hover:underline">
+                  <span className="text-[10px] text-rose-500 dark:text-rose-400 font-mono mt-0.5 group-hover:underline">
                     [1]
                   </span>
                 </button>
@@ -661,13 +661,13 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('hard')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
+                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
                 >
-                  <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
                     {getIntervalPreview('hard', currentItem.stats)}
                   </span>
                   <span className="text-xs font-bold mt-0.5">Hard</span>
-                  <span className="text-[10px] text-amber-600 font-mono mt-0.5 group-hover:underline">
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono mt-0.5 group-hover:underline">
                     [2]
                   </span>
                 </button>
@@ -676,13 +676,13 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('good')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-[#e6f6ee] hover:bg-[#d5f0e1] text-[#0f3d2c] border border-emerald-300 active:scale-[0.97] transition-all cursor-pointer shadow-2xs ring-1 ring-emerald-200 group"
+                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-[#e6f6ee] dark:bg-[#153427] hover:bg-[#d5f0e1] dark:hover:bg-[#1a4433] text-[#0f3d2c] dark:text-[#c4ded3] border border-emerald-300 dark:border-emerald-800/80 active:scale-[0.97] transition-all cursor-pointer shadow-2xs ring-1 ring-emerald-200 dark:ring-emerald-900/60 group"
                 >
-                  <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
                     {getIntervalPreview('good', currentItem.stats)}
                   </span>
                   <span className="text-xs font-bold mt-0.5">Good</span>
-                  <span className="text-[10px] text-emerald-600 font-mono mt-0.5 group-hover:underline">
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 group-hover:underline">
                     [3 / Space]
                   </span>
                 </button>
@@ -691,19 +691,19 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('easy')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
+                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-900 dark:text-sky-200 border border-sky-200 dark:border-sky-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
                 >
-                  <span className="text-[11px] font-bold text-sky-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-sky-700 dark:text-sky-400 uppercase tracking-wider">
                     {getIntervalPreview('easy', currentItem.stats)}
                   </span>
                   <span className="text-xs font-bold mt-0.5">Easy</span>
-                  <span className="text-[10px] text-sky-600 font-mono mt-0.5 group-hover:underline">
+                  <span className="text-[10px] text-sky-600 dark:text-sky-400 font-mono mt-0.5 group-hover:underline">
                     [4]
                   </span>
                 </button>
               </div>
 
-              <div className="text-center text-[11px] text-[#7c8d85] font-medium">
+              <div className="text-center text-[11px] text-[#7c8d85] dark:text-[#8ea49a] font-medium">
                 Anki 키보드 단축키: <strong>[1] Again</strong> &bull; <strong>[2] Hard</strong> &bull; <strong>[3/Space] Good</strong> &bull; <strong>[4] Easy</strong>
               </div>
             </div>
@@ -716,7 +716,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
         <button
           type="button"
           onClick={() => onEditSentenceIndex(currentItem.sentence)}
-          className="inline-flex items-center gap-1.5 text-xs text-[#526a60] hover:text-[#12382c] font-semibold transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs text-[#526a60] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] font-semibold transition-colors cursor-pointer"
         >
           <Edit3 className="w-3.5 h-3.5" />
           <span>Edit this sentence in Word Index</span>

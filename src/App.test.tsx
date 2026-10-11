@@ -327,6 +327,31 @@ describe('Sentence Note - Multi-Index Management', () => {
     // Click Good button
     fireEvent.click(screen.getByRole('button', { name: /good/i }))
   })
+
+  it('toggles dark and light mode, updating DOM class and localStorage', () => {
+    localStorage.clear()
+    document.documentElement.classList.remove('dark')
+
+    render(<App />)
+
+    // Check Header & Sidebar toggle buttons
+    const toggles = screen.getAllByRole('button', { name: /switch to dark mode/i })
+    expect(toggles.length).toBeGreaterThanOrEqual(1)
+
+    // Click first toggle (Header) to activate Dark mode
+    fireEvent.click(toggles[0])
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(localStorage.getItem('sentence_note_theme')).toBe('dark')
+
+    // Click to switch back to Light mode
+    const lightToggles = screen.getAllByRole('button', { name: /switch to light mode/i })
+    expect(lightToggles.length).toBeGreaterThanOrEqual(1)
+    fireEvent.click(lightToggles[0])
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(localStorage.getItem('sentence_note_theme')).toBe('light')
+  })
 })
 
 

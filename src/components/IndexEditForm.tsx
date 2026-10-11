@@ -138,16 +138,16 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
       {/* 1. Multi-Index Chips Manager */}
       <div>
         <div className="flex items-center justify-between mb-2.5">
-          <label className="text-xs font-semibold tracking-wider text-[#7c8d85] uppercase block">
+          <label className="text-xs font-semibold tracking-wider text-[#7c8d85] dark:text-[#8ea49a] uppercase block">
             Indexed phrases in this sentence ({localIndexes.length})
           </label>
-          <span className="text-[11px] text-[#7c8d85]">
+          <span className="text-[11px] text-[#7c8d85] dark:text-[#8ea49a]">
             Click to select · Click × to remove
           </span>
         </div>
 
         {/* Index badges row */}
-        <div className="flex flex-wrap items-center gap-2 min-h-9 p-2.5 rounded-xl bg-[#f7f6f0] border border-[#e6e2d6]">
+        <div className="flex flex-wrap items-center gap-2 min-h-9 p-2.5 rounded-xl bg-[#f7f6f0] dark:bg-[#1b2b27] border border-[#e6e2d6] dark:border-[#283d36]">
           {localIndexes.map((idx) => {
             const isSelected = idx.id === activeIndex?.id
             return (
@@ -156,8 +156,8 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
                 onClick={() => onSelectIndex(idx.id)}
                 className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-[#fef08a] text-[#12382c] shadow-xs ring-1 ring-amber-300 font-semibold'
-                    : 'bg-white text-[#224034] hover:bg-[#eae6dc] border border-[#dedad0]'
+                    ? 'bg-[#fef08a] dark:bg-[#eab308] text-[#12382c] dark:text-[#0c1412] shadow-xs ring-1 ring-amber-300 dark:ring-amber-400 font-semibold'
+                    : 'bg-white dark:bg-[#14201c] text-[#224034] dark:text-[#c4ded3] hover:bg-[#eae6dc] dark:hover:bg-[#20342f] border border-[#dedad0] dark:border-[#283d36]'
                 }`}
               >
                 <span>{idx.phrase}</span>
@@ -167,7 +167,7 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
                     e.stopPropagation()
                     handleRemoveIndex(idx.id)
                   }}
-                  className="ml-1.5 text-[#50665c] hover:text-red-700 p-0.5 rounded transition-colors"
+                  className="ml-1.5 text-[#50665c] dark:text-[#8ea49a] hover:text-red-700 dark:hover:text-red-400 p-0.5 rounded transition-colors"
                   aria-label={`Remove ${idx.phrase} index`}
                 >
                   <X className="w-3 h-3 stroke-[2.2]" />
@@ -177,7 +177,7 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
           })}
 
           {localIndexes.length === 0 && (
-            <span className="text-xs text-[#8c9e96] italic px-1">
+            <span className="text-xs text-[#8c9e96] dark:text-[#6a8076] italic px-1">
               No index phrases added yet. Add one below.
             </span>
           )}
@@ -188,7 +188,7 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
       <div>
         <label
           htmlFor="multi-index-input"
-          className="text-xs font-semibold tracking-wider text-[#7c8d85] uppercase mb-2 block"
+          className="text-xs font-semibold tracking-wider text-[#7c8d85] dark:text-[#8ea49a] uppercase mb-2 block"
         >
           Add multiple indexes
         </label>
@@ -200,13 +200,13 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
             onChange={(e) => setMultiInput(e.target.value)}
             onKeyDown={handleKeyDownMultiInput}
             placeholder="Type index phrases separated by comma (e.g. café, bookstore)..."
-            className="flex-1 h-10 px-3.5 rounded-xl bg-[#f7f6f0] border border-[#e2ded2] text-[#143d30] text-sm focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 focus:border-[#133d2e] focus:bg-white placeholder-[#8c9e96] transition-all"
+            className="flex-1 h-10 px-3.5 rounded-xl bg-[#f7f6f0] dark:bg-[#1b2b27] border border-[#e2ded2] dark:border-[#283d36] text-[#143d30] dark:text-[#e4ede8] text-sm focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] focus:bg-white dark:focus:bg-[#14201c] placeholder-[#8c9e96] dark:placeholder-[#6a8076] transition-all"
           />
           <button
             type="button"
             onClick={handleAddMultiIndexes}
             disabled={!multiInput.trim()}
-            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] active:scale-[0.98] text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all disabled:opacity-40 shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all disabled:opacity-40 shrink-0 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.4]" />
             <span>Add</span>
@@ -216,8 +216,8 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
         {/* Quick word suggestions from sentence */}
         {unindexedSuggestions.length > 0 && (
           <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-semibold text-[#7c8d85] flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-600" />
+            <span className="text-[11px] font-semibold text-[#7c8d85] dark:text-[#8ea49a] flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
               <span>Sentence words:</span>
             </span>
             {unindexedSuggestions.map((w) => (
@@ -225,7 +225,7 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
                 key={w}
                 type="button"
                 onClick={() => handleAddSuggestion(w)}
-                className="text-xs px-2 py-0.5 rounded-lg bg-[#eef8f2] text-[#165a41] hover:bg-[#dcf2e6] border border-emerald-100 transition-colors cursor-pointer"
+                className="text-xs px-2 py-0.5 rounded-lg bg-[#eef8f2] dark:bg-[#1b352b] text-[#165a41] dark:text-[#a7f3d0] hover:bg-[#dcf2e6] dark:hover:bg-[#244b3c] border border-emerald-100 dark:border-[#235845] transition-colors cursor-pointer"
               >
                 +{w}
               </button>
@@ -239,7 +239,7 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
         <div>
           <label
             htmlFor="selected-index-input"
-            className="text-xs font-semibold tracking-wider text-[#7c8d85] uppercase mb-2 block"
+            className="text-xs font-semibold tracking-wider text-[#7c8d85] dark:text-[#8ea49a] uppercase mb-2 block"
           >
             Edit Selected Index
           </label>
@@ -250,19 +250,19 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
             onChange={(e) => handleActivePhraseChange(e.target.value)}
             placeholder="Edit selected phrase..."
             required
-            className="w-full h-11 px-4 rounded-xl bg-[#f7f6f0] border border-[#e2ded2] text-[#143d30] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 focus:border-[#133d2e] focus:bg-white transition-all shadow-2xs"
+            className="w-full h-11 px-4 rounded-xl bg-[#f7f6f0] dark:bg-[#1b2b27] border border-[#e2ded2] dark:border-[#283d36] text-[#143d30] dark:text-[#e4ede8] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] focus:bg-white dark:focus:bg-[#14201c] transition-all shadow-2xs"
           />
         </div>
       )}
 
       {/* 4. Action Buttons */}
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-6 border-t border-[#f2eee4]">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-6 border-t border-[#f2eee4] dark:border-[#23352f]">
         <div>
           {activeIndex && (
             <button
               type="button"
               onClick={() => onDeleteRequest(activeIndex.id)}
-              className="w-full sm:w-auto h-9.5 px-4 text-xs sm:text-sm font-semibold text-rose-600 bg-white border border-rose-200 hover:bg-rose-50 hover:border-rose-300 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 cursor-pointer shadow-2xs"
+              className="w-full sm:w-auto h-9.5 px-4 text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-400 bg-white dark:bg-[#14201c] border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:border-rose-300 dark:hover:border-rose-800 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 cursor-pointer shadow-2xs"
               aria-label={`Delete ${activeIndex.phrase} index`}
             >
               Delete index
@@ -274,14 +274,14 @@ export const IndexEditForm: React.FC<IndexEditFormProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className="flex-1 sm:flex-initial h-9.5 px-4 text-xs sm:text-sm font-semibold text-[#4a5b54] bg-white border border-[#dedad0] hover:bg-[#f6f4ee] active:scale-[0.98] rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] cursor-pointer shadow-2xs"
+            className="flex-1 sm:flex-initial h-9.5 px-4 text-xs sm:text-sm font-semibold text-[#4a5b54] dark:text-[#a0b5ab] bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] cursor-pointer shadow-2xs"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            className="flex-1 sm:flex-initial h-9.5 px-5 text-xs sm:text-sm font-semibold text-white bg-[#133d2e] hover:bg-[#0c2b20] active:scale-[0.98] rounded-xl shadow-xs hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#133d2e] cursor-pointer"
+            className="flex-1 sm:flex-initial h-9.5 px-5 text-xs sm:text-sm font-semibold text-white bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] rounded-xl shadow-xs hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#133d2e] cursor-pointer"
           >
             Save changes
           </button>

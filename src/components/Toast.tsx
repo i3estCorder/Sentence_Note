@@ -32,9 +32,9 @@ export const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
   }
 
   const borderClasses = {
-    success: 'border-emerald-200 bg-emerald-50/95 text-emerald-900',
-    error: 'border-red-200 bg-red-50/95 text-red-900',
-    info: 'border-blue-200 bg-blue-50/95 text-blue-900',
+    success: 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/95 dark:bg-[#132c21]/95 text-emerald-900 dark:text-[#a7f3d0]',
+    error: 'border-red-200 dark:border-rose-900 bg-red-50/95 dark:bg-[#2c1818]/95 text-red-900 dark:text-[#fecdd3]',
+    info: 'border-blue-200 dark:border-blue-800 bg-blue-50/95 dark:bg-[#122838]/95 text-blue-900 dark:text-[#bae6fd]',
   }
 
   return (

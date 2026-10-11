@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
@@ -320,6 +320,18 @@ export function App() {
     showToast('success', `Imported ${importedData.length} sentences successfully!`)
   }
 
+  const indexCount = useMemo(() => {
+    const map = new Map<string, boolean>()
+    for (const s of sentences) {
+      for (const idx of s.indexes) {
+        if (idx.phrase && idx.phrase.trim()) {
+          map.set(idx.phrase.trim().toLowerCase(), true)
+        }
+      }
+    }
+    return map.size
+  }, [sentences])
+
   return (
     <div className="min-h-screen bg-[#f7f6f1] dark:bg-[#0c1412] text-[#16382c] dark:text-[#e4ede8] flex flex-col lg:flex-row antialiased selection:bg-[#dcf2e6] selection:text-[#12382c] dark:selection:bg-[#1a4435] dark:selection:text-[#cbf3e2] transition-colors duration-150">
       {/* Accessible Skip Link */}
@@ -337,6 +349,7 @@ export function App() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         sentenceCount={sentences.length}
+        indexCount={indexCount}
         favoritesCount={sentences.filter((s) => s.isFavorite).length}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}

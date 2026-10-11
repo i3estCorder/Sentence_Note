@@ -15,6 +15,7 @@ interface SidebarProps {
   isOpen: boolean
   onClose: () => void
   sentenceCount?: number
+  indexCount?: number
   favoritesCount?: number
   isDarkMode?: boolean
   onToggleDarkMode?: () => void
@@ -26,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
   sentenceCount,
+  indexCount,
   favoritesCount,
   isDarkMode,
   onToggleDarkMode,
@@ -118,18 +120,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                   <span>{item.label}</span>
 
-                  {/* Sentence count badge next to Library */}
-                  {item.id === 'library' && typeof sentenceCount === 'number' && (
-                    <span
-                      className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
-                        isActive
-                          ? 'bg-[#12382c] dark:bg-[#9fe2c7] text-white dark:text-[#0b281d] shadow-2xs'
-                          : 'bg-[#e7e4dc] dark:bg-[#253932] text-[#556961] dark:text-[#9bb3a7]'
-                      }`}
-                      aria-label={`${sentenceCount} sentences in library`}
-                    >
-                      {sentenceCount}
-                    </span>
+                  {/* Index and Sentence count badges next to Library */}
+                  {item.id === 'library' && (
+                    <div className="ml-auto flex items-center gap-1.5 shrink-0">
+                      {typeof indexCount === 'number' && (
+                        <span
+                          className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md transition-colors ${
+                            isActive
+                              ? 'bg-[#12382c] dark:bg-[#9fe2c7] text-white dark:text-[#0b281d] shadow-2xs'
+                              : 'bg-[#dcf2e6] dark:bg-[#183d2f] text-[#12382c] dark:text-[#9fe2c7] ring-1 ring-[#b8ebd2] dark:ring-[#235845]'
+                          }`}
+                          title={`${indexCount} index words`}
+                          aria-label={`${indexCount} indexes in library`}
+                        >
+                          idx {indexCount}
+                        </span>
+                      )}
+                      {typeof sentenceCount === 'number' && (
+                        <span
+                          className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md transition-colors ${
+                            isActive
+                              ? 'bg-[#312e81] dark:bg-[#a5b4fc] text-white dark:text-[#1e1b4b] shadow-2xs'
+                              : 'bg-[#e0e7ff] dark:bg-[#1e1b4b] text-[#3730a3] dark:text-[#a5b4fc] ring-1 ring-[#c7d2fe] dark:ring-[#312e81]'
+                          }`}
+                          title={`${sentenceCount} sentences`}
+                          aria-label={`${sentenceCount} sentences in library`}
+                        >
+                          sent {sentenceCount}
+                        </span>
+                      )}
+                    </div>
                   )}
 
                   {/* Favorite count badge next to Favorites */}

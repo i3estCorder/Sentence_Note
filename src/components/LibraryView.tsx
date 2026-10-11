@@ -361,9 +361,22 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               2-Tier Index Grouping
             </span>
           </div>
-          <p className="text-sm text-[#5f756c] dark:text-[#8ea49a] mt-1">
-            Browse indexes and sentences in your vault ({groupedIndexList.length} unique index cards &bull; {alphabetSections.length} alphabet chapters &bull; {sentences.length} sentences).
-          </p>
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <span className="text-sm text-[#5f756c] dark:text-[#8ea49a]">
+              Browse indexes and sentences in your vault:
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#dcf2e6] dark:bg-[#183d2f] text-[#12382c] dark:text-[#9fe2c7] ring-1 ring-[#b8ebd2] dark:ring-[#235845]">
+              <Sparkles className="w-3 h-3 text-[#133d2e] dark:text-[#34d399]" />
+              Index {groupedIndexList.length}
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#e0e7ff] dark:bg-[#1e1b4b] text-[#3730a3] dark:text-[#a5b4fc] ring-1 ring-[#c7d2fe] dark:ring-[#312e81]">
+              <BookOpen className="w-3 h-3 text-[#3730a3] dark:text-[#a5b4fc]" />
+              Sentence {sentences.length}
+            </span>
+            <span className="text-xs text-[#8c9e96] dark:text-[#6a8076]">
+              ({alphabetSections.length} alphabet chapters)
+            </span>
+          </div>
         </div>
 
         {/* Action Buttons: Export/Import JSON & New Sentence */}

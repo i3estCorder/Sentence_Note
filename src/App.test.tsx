@@ -323,7 +323,7 @@ describe('Sentence Note - Multi-Index Management', () => {
     const libraryBtn = within(nav).getByRole('button', { name: /library/i })
 
     // Should contain sentence count badge
-    expect(within(libraryBtn).getByText(/\d+/)).toBeInTheDocument()
+    expect(within(libraryBtn).getAllByText(/\d+/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('supports Anki-style SRS review flow with Reveal and 4 rating buttons', () => {
@@ -465,10 +465,10 @@ describe('Sentence Note - Multi-Index Management', () => {
     // Header badges should accurately say "1 sentences"
     expect(screen.getAllByText(/1 sentences/i).length).toBeGreaterThanOrEqual(1)
 
-    // Sidebar badge should display 1, not 2
+    // Sidebar badge should display sent 1, not 2
     const nav = screen.getByRole('navigation', { name: /main navigation/i })
     const libraryBtn = within(nav).getByRole('button', { name: /library/i })
-    expect(within(libraryBtn).getByText('1')).toBeInTheDocument()
+    expect(within(libraryBtn).getByText(/sent 1/i)).toBeInTheDocument()
 
     unmount()
   })
@@ -645,7 +645,12 @@ describe('Sentence Note - Multi-Index Management', () => {
     const nav = screen.getByRole('navigation', { name: /main navigation/i })
     fireEvent.click(within(nav).getByRole('button', { name: /favorites/i }))
 
-    // Only ONE card/sentence should be rendered for this sentence
+    // In default Index view: each index card is separated
+    expect(screen.getByRole('button', { name: /view by index/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /view by sentence/i })).toBeInTheDocument()
+
+    // Switch to Sentence view: only ONE card rendered for this sentence
+    fireEvent.click(screen.getByRole('button', { name: /view by sentence/i }))
     expect(screen.getAllByText(/The small café is/i)).toHaveLength(1)
 
     // The card header should display BOTH indexes
@@ -654,6 +659,39 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     // Title should contain both phrases separated by |
     expect(screen.getByRole('heading', { level: 3, name: /tucked away\s*\|\s*behind/i })).toBeInTheDocument()
+
+    unmount()
+  })
+
+  it('displays separate colored badges for Index and Sentence next to Library in Sidebar', () => {
+    localStorage.clear()
+    const stored = [
+      {
+        id: 's-1',
+        text: 'The small café is tucked away behind the bookstore.',
+        indexes: [
+          { id: 'idx-1', phrase: 'tucked away' },
+          { id: 'idx-2', phrase: 'behind' },
+        ],
+        isFavorite: false,
+      },
+      {
+        id: 's-2',
+        text: 'She stumbled upon a rare antique clock in the attic.',
+        indexes: [{ id: 'idx-3', phrase: 'stumbled upon' }],
+        isFavorite: false,
+      },
+    ]
+    localStorage.setItem('sentence_vault_v1', JSON.stringify(stored))
+
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    const libraryBtn = within(nav).getByRole('button', { name: /library/i })
+
+    // Should display index count (3 unique indexes) and sentence count (2 sentences) with separate labels
+    expect(within(libraryBtn).getByText(/idx 3/i)).toBeInTheDocument()
+    expect(within(libraryBtn).getByText(/sent 2/i)).toBeInTheDocument()
 
     unmount()
   })

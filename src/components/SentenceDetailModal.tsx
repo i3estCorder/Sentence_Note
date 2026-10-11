@@ -313,15 +313,11 @@ export const SentenceDetailModal: React.FC<SentenceDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsTranslationVisible(true)}
-                  className="w-full text-left p-3.5 sm:p-4 rounded-2xl bg-[#f7f5ed] dark:bg-[#182622] border border-dashed border-[#dcd7cb] dark:border-[#283d36] flex items-center justify-between cursor-pointer hover:bg-[#f0ece1] dark:hover:bg-[#1e2f2a] transition-colors group"
+                  className="w-full text-left p-3.5 sm:p-4 rounded-2xl bg-[#f7f5ed] dark:bg-[#182622] border border-dashed border-[#dcd7cb] dark:border-[#283d36] flex items-center cursor-pointer hover:bg-[#f0ece1] dark:hover:bg-[#1e2f2a] transition-colors group"
                   aria-label="Show translation"
                 >
                   <span className="text-xs font-medium text-[#7c8d85] dark:text-[#8ea49a] group-hover:text-[#12382c] dark:group-hover:text-[#e4ede8] transition-colors">
                     번역이 숨겨져 있습니다. 클릭하여 확인하세요.
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-[#133d2e] dark:text-[#34d399]">
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>번역 보기</span>
                   </span>
                 </button>
               )}

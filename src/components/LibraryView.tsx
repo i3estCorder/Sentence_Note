@@ -29,7 +29,6 @@ interface LibraryViewProps {
   onBackToMain?: () => void
   onOpenMobileMenu?: () => void
   onSelectIndexToEdit?: (sentence: SentenceData, indexId: string) => void
-  onDeleteIndex?: (sentenceId: string, indexId: string) => void
   onExportJSON?: () => void
   onImportJSON?: (data: SentenceData[]) => void
 }
@@ -69,7 +68,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onBackToMain,
   onOpenMobileMenu,
   onSelectIndexToEdit,
-  onDeleteIndex,
   onExportJSON,
   onImportJSON,
 }) => {
@@ -90,9 +88,29 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     const map = new Map<string, { phrase: string; sentences: SentenceData[] }>()
 
     for (const sentence of sentences) {
-      for (const idx of sentence.indexes) {
+      const validIndexes = sentence.indexes.filter(
+        (idx) => idx && idx.phrase && idx.phrase.trim().length > 0
+      )
+
+      if (validIndexes.length === 0) {
+        // Fallback: If a sentence has no valid indexes, group under "(Unindexed)" so it is NEVER hidden!
+        const key = '(unindexed)'
+        if (!map.has(key)) {
+          map.set(key, {
+            phrase: 'Unindexed',
+            sentences: [sentence],
+          })
+        } else {
+          const entry = map.get(key)!
+          if (!entry.sentences.some((s) => s.id === sentence.id)) {
+            entry.sentences.push(sentence)
+          }
+        }
+        continue
+      }
+
+      for (const idx of validIndexes) {
         const trimmed = idx.phrase.trim()
-        if (!trimmed) continue
         const key = trimmed.toLowerCase()
 
         if (!map.has(key)) {
@@ -573,19 +591,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                 </button>
                               )}
 
-                              {firstSentence && targetIndexObj && onDeleteIndex ? (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDeleteIndex(firstSentence.id, targetIndexObj.id)
-                                  }}
-                                  className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                                  aria-label={`Delete ${group.phrase} index`}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              ) : firstSentence ? (
+                              {firstSentence && (
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -594,10 +600,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                   }}
                                   className="w-8 h-8 rounded-xl flex items-center justify-center text-[#8c9e96] dark:text-[#6a8076] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                   aria-label="Delete sentence"
+                                  title="문장 삭제"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
-                              ) : null}
+                              )}
                             </div>
                           </div>
 

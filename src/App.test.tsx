@@ -441,6 +441,37 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('sanitizes ghost sentences with 0 indexes from localStorage so sentence count strictly matches visible sentences', () => {
+    localStorage.clear()
+    const storedWithGhost = [
+      {
+        id: 'sentence-1',
+        text: "I didn't like pretty people because they showed off all the time.",
+        indexes: [{ id: 'idx-1', phrase: 'show off' }],
+        isFavorite: false,
+      },
+      {
+        id: 'ghost-sentence',
+        text: 'Ghost sentence without indexes',
+        indexes: [],
+        isFavorite: false,
+      },
+    ]
+    localStorage.setItem('sentence_vault_v1', JSON.stringify(storedWithGhost))
+
+    const { unmount } = render(<App />)
+
+    // Header badges should accurately say "1 sentences"
+    expect(screen.getAllByText(/1 sentences/i).length).toBeGreaterThanOrEqual(1)
+
+    // Sidebar badge should display 1, not 2
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    const libraryBtn = within(nav).getByRole('button', { name: /library/i })
+    expect(within(libraryBtn).getByText('1')).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

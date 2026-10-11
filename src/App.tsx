@@ -58,7 +58,17 @@ export function App() {
       if (saved) {
         const parsed = JSON.parse(saved)
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed
+          const valid = parsed.filter(
+            (s: SentenceData) =>
+              s &&
+              typeof s.text === 'string' &&
+              s.text.trim().length > 0 &&
+              Array.isArray(s.indexes) &&
+              s.indexes.some((idx) => idx && idx.phrase && idx.phrase.trim().length > 0)
+          )
+          if (valid.length > 0) {
+            return valid
+          }
         }
       }
     } catch (e) {
@@ -139,13 +149,15 @@ export function App() {
     )
 
     setSentences((prev) =>
-      prev.map((s) => {
-        if (s.id !== sentenceData.id) return s
-        return {
-          ...s,
-          indexes: remainingIndexes,
-        }
-      })
+      prev
+        .map((s) => {
+          if (s.id !== sentenceData.id) return s
+          return {
+            ...s,
+            indexes: remainingIndexes,
+          }
+        })
+        .filter((s) => s.indexes.length > 0)
     )
 
     setIsDeleteModalOpen(false)
@@ -213,20 +225,6 @@ export function App() {
     setCurrentNav('edit-index')
   }
 
-  // Delete specific index from vault
-  const handleDeleteIndexFromVault = (sentenceId: string, indexId: string) => {
-    setSentences((prev) =>
-      prev.map((s) => {
-        if (s.id !== sentenceId) return s
-        const remaining = s.indexes.filter((idx) => idx.id !== indexId)
-        return {
-          ...s,
-          indexes: remaining,
-        }
-      })
-    )
-    showToast('info', 'Index removed from sentence')
-  }
 
   // Toggle favorite star
   const handleToggleFavorite = (sentenceId: string) => {
@@ -402,7 +400,6 @@ export function App() {
               onToggleFavorite={handleToggleFavorite}
               onDeleteSentence={handleDeleteSentence}
               onUpdateSentence={handleUpdateSentence}
-              onDeleteIndex={handleDeleteIndexFromVault}
               onNavigateToAdd={() => setIsNewSentenceModalOpen(true)}
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
               onExportJSON={handleExportJSON}

@@ -6,6 +6,7 @@ import {
   Menu,
   Volume2,
   RotateCcw,
+  RotateCw,
   Sparkles,
   Trophy,
   BookOpen,
@@ -132,12 +133,27 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
   const [sessionCompletedCount, setSessionCompletedCount] = useState(0)
   const [sessionAgainCount, setSessionAgainCount] = useState(0)
   const [sessionGoodCount, setSessionGoodCount] = useState(0)
+  const [sessionAgainItems, setSessionAgainItems] = useState<ReviewItem[]>([])
   const [isSessionFinished, setIsSessionFinished] = useState(false)
 
   // Today reviewed count across all sessions
   const todayReviewedCount = useMemo(() => {
     const today = getTodayString()
     return allReviewItems.filter((item) => item.stats.lastReviewed === today).length
+  }, [allReviewItems])
+
+  // Again cards pool available for re-study
+  const againCardsToReview = useMemo(() => {
+    if (sessionAgainItems.length > 0) return sessionAgainItems
+    return allReviewItems.filter(
+      (item) => item.stats.state === 'learning' || item.stats.interval === 0
+    )
+  }, [sessionAgainItems, allReviewItems])
+
+  const againCardsCount = useMemo(() => {
+    return allReviewItems.filter(
+      (item) => item.stats.state === 'learning' || item.stats.interval === 0
+    ).length
   }, [allReviewItems])
 
   // Sync queue only if total sentences count changed (e.g. user added or deleted sentences in library)
@@ -156,6 +172,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
     setSessionCompletedCount(0)
     setSessionAgainCount(0)
     setSessionGoodCount(0)
+    setSessionAgainItems([])
   }, [])
 
   const currentItem = queue[0] || null
@@ -292,26 +309,24 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
         [stats.id]: updatedStats,
       }))
 
-      // Anki Queue processing:
-      // If 'Again', insert back into queue (at the end so user sees it again this session)
+      // Advance queue: Each card is reviewed once per session without repetitive looping
       const remainingQueue = queue.slice(1)
+      setSessionCompletedCount((c) => c + 1)
 
       if (rating === 'again') {
-        // Put card back at the end of the current session queue
-        const reinsertedItem: ReviewItem = {
-          sentence,
-          targetIndex,
-          stats: updatedStats,
-        }
-        setQueue([...remainingQueue, reinsertedItem])
+        setSessionAgainItems((prev) => {
+          const exists = prev.some(
+            (it) => it.targetIndex.id === targetIndex.id && it.sentence.id === sentence.id
+          )
+          if (exists) return prev
+          return [...prev, { sentence, targetIndex, stats: updatedStats }]
+        })
+      }
+
+      if (remainingQueue.length === 0) {
+        setIsSessionFinished(true)
       } else {
-        // Card is successfully answered for today
-        setSessionCompletedCount((c) => c + 1)
-        if (remainingQueue.length === 0) {
-          setIsSessionFinished(true)
-        } else {
-          setQueue(remainingQueue)
-        }
+        setQueue(remainingQueue)
       }
 
       setIsRevealed(false)
@@ -402,7 +417,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
           <p className="text-sm text-[#5a7267] dark:text-[#8ea49a] mt-2 max-w-md">
             {sessionCompletedCount === 0 && todayReviewedCount > 0
               ? '오늘 복습할 카드를 모두 완료했습니다! 다음 복습 주기가 되면 카드가 자동으로 나타납니다.'
-              : '축하합니다! 현재 덱에 배정된 모든 카드를 Anki 간격 반복(SRS) 원칙에 따라 복습했습니다.'}
+              : '축하합니다! 현재 세션의 모든 카드를 확인했습니다.'}
           </p>
 
           {/* Session Statistics Cards */}
@@ -414,13 +429,17 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
               </div>
             </div>
             <div className="p-3.5 rounded-2xl bg-[#fef2f2] dark:bg-[#2c1818] border border-rose-200 dark:border-rose-900/60">
-              <div className="text-xs font-semibold text-rose-700 dark:text-rose-400">다시(Again)</div>
-              <div className="text-xl font-black text-rose-800 dark:text-rose-300 mt-1">{sessionAgainCount}</div>
+              <div className="text-xs font-semibold text-rose-700 dark:text-rose-400">다시(Again / Learn)</div>
+              <div className="text-xl font-black text-rose-800 dark:text-rose-300 mt-1">
+                {sessionCompletedCount > 0 ? sessionAgainCount : againCardsCount}
+              </div>
             </div>
             <div className="p-3.5 rounded-2xl bg-[#ecfdf5] dark:bg-[#132c21] border border-emerald-200 dark:border-emerald-900/60">
               <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">기억 성공</div>
               <div className="text-xl font-black text-emerald-800 dark:text-emerald-300 mt-1">
-                {sessionGoodCount > 0 ? sessionGoodCount : todayReviewedCount}
+                {sessionCompletedCount > 0
+                  ? sessionGoodCount
+                  : Math.max(0, todayReviewedCount - againCardsCount)}
               </div>
             </div>
           </div>
@@ -433,7 +452,21 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
               className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               <RotateCcw className="w-4 h-4 stroke-[2.2]" />
-              <span>전체 다시 복습하기 (Study again)</span>
+              <span>전체 다시 복습하기</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={againCardsToReview.length === 0}
+              onClick={() => startSession(againCardsToReview)}
+              className={`inline-flex items-center gap-2 h-10 px-5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                againCardsToReview.length > 0
+                  ? 'bg-rose-600 hover:bg-rose-700 dark:bg-rose-700 dark:hover:bg-rose-800 text-white shadow-xs cursor-pointer active:scale-[0.98]'
+                  : 'bg-rose-100 dark:bg-rose-950/30 text-rose-300 dark:text-rose-800 cursor-not-allowed border border-rose-200 dark:border-rose-900/40'
+              }`}
+            >
+              <RotateCw className="w-4 h-4 stroke-[2.2]" />
+              <span>Again 다시 복습하기 ({againCardsToReview.length})</span>
             </button>
 
             {onNavigateToLibrary && (

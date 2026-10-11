@@ -407,6 +407,40 @@ describe('Sentence Note - Multi-Index Management', () => {
     expect(screen.getByText(/4\s+New/i)).toBeInTheDocument()
     unmount()
   })
+
+  it('finishes review session cleanly without repeating Again cards, and offers Again 다시 복습하기 button', () => {
+    localStorage.clear()
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /review/i }))
+
+    // Rate 5 cards: 1 Again, 4 Good
+    // Card 1: Again
+    fireEvent.click(screen.getByRole('button', { name: /reveal answer/i }))
+    fireEvent.click(screen.getByRole('button', { name: /again/i }))
+
+    // Cards 2-5: Good
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByRole('button', { name: /reveal answer/i }))
+      fireEvent.click(screen.getByRole('button', { name: /good/i }))
+    }
+
+    // Session immediately ends without re-looping the Again card!
+    expect(screen.getByRole('heading', { level: 2, name: /오늘의 복습 완료/i })).toBeInTheDocument()
+
+    // Both buttons exist: "전체 다시 복습하기" and "Again 다시 복습하기 (1)"
+    expect(screen.getByRole('button', { name: /전체 다시 복습하기/i })).toBeInTheDocument()
+    const againReviewBtn = screen.getByRole('button', { name: /again 다시 복습하기 \(1\)/i })
+    expect(againReviewBtn).toBeInTheDocument()
+
+    // Click "Again 다시 복습하기 (1)" -> starts session with exactly 1 Again card!
+    fireEvent.click(againReviewBtn)
+    expect(screen.getByRole('heading', { level: 1, name: /review & practice/i })).toBeInTheDocument()
+    expect(screen.getByText(/1\s+Learn/i)).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

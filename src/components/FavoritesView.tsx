@@ -117,7 +117,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
         sentence: value.sentence,
         allSentenceIds: value.allSentenceIds,
         indexes,
-        primaryPhrase: indexes.map((i) => i.phrase).join(', ') || value.sentence.text,
+        primaryPhrase: indexes.map((i) => i.phrase).join(' | ') || value.sentence.text,
       })
     })
 
@@ -251,7 +251,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
                     </div>
 
                     <h3 className="text-lg sm:text-xl font-bold text-[#12382c] dark:text-[#e4ede8] tracking-tight truncate">
-                      {card.indexes.map((i) => i.phrase).join(', ') || card.primaryPhrase}
+                      {card.indexes.map((i) => i.phrase).join(' | ') || card.primaryPhrase}
                     </h3>
                   </div>
 
@@ -361,7 +361,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
               <div className="pt-3.5 mt-3 border-t border-[#f2ede4] dark:border-[#23352f] flex items-center justify-between gap-3">
                 <div className="text-xs text-[#71857c] dark:text-[#8ea49a] font-medium truncate">
                   {card.indexes.length > 1
-                    ? `${card.indexes.length}개 인덱스 태그: ${card.indexes.map((i) => i.phrase).join(', ')}`
+                    ? `${card.indexes.length}개 인덱스 태그: ${card.indexes.map((i) => i.phrase).join(' | ')}`
                     : `인덱스 태그: "${card.indexes[0]?.phrase || ''}"`}
                 </div>
                 <button

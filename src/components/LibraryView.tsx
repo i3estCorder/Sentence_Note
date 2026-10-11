@@ -597,14 +597,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                             </div>
                           </div>
 
-                          {/* TIER 3: Context Sentence(s) Grouped Inside Card */}
-                          <div className="pt-3.5 pb-2 space-y-3">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-[#7c8d85]">
-                              {group.sentences.length > 1
-                                ? `Context sentences (${group.sentences.length})`
-                                : 'Context sentence'}
-                            </p>
-
+                          {/* Context Sentence(s) Grouped Inside Card */}
+                          <div className="pt-3 pb-1 space-y-2.5">
                             <div className="space-y-2.5">
                               {group.sentences.map((sentence, sIdx) => (
                                 <div

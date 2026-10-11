@@ -177,19 +177,24 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="pt-3.5 pb-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[#7c8d85] mb-1.5">
-                      Context sentence
-                    </p>
-                    <p className="text-sm sm:text-base text-[#143d30] font-serif leading-relaxed">
-                      {highlightMultiPhrases(
-                        card.sentence.text,
-                        card.phrase,
-                        card.sentence.indexes
-                          .filter((i) => i.phrase.toLowerCase() !== card.phrase.toLowerCase())
-                          .map((i) => i.phrase)
+                  <div className="pt-3 pb-1">
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] border border-[#eeebe3] hover:border-[#ded8ca] transition-all">
+                      <p className="text-sm sm:text-base text-[#143d30] font-serif leading-relaxed">
+                        {highlightMultiPhrases(
+                          card.sentence.text,
+                          card.phrase,
+                          card.sentence.indexes
+                            .filter((i) => i.phrase.toLowerCase() !== card.phrase.toLowerCase())
+                            .map((i) => i.phrase)
+                        )}
+                      </p>
+
+                      {card.sentence.translation && (
+                        <p className="mt-1.5 text-xs text-[#527063] font-sans">
+                          {card.sentence.translation}
+                        </p>
                       )}
-                    </p>
+                    </div>
                   </div>
                 </div>
 

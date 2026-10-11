@@ -472,6 +472,71 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('hides translations by default in Library and allows toggling visibility with the show/hide button', () => {
+    localStorage.clear()
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+
+    // Switch to Sentences tab
+    fireEvent.click(screen.getByRole('button', { name: /sentences/i }))
+
+    // Default translation text should NOT be visible initially
+    const sampleTranslation = '그 작은 카페는 서점 뒤편에 아늑하게 자리 잡고 있습니다.'
+    expect(screen.queryAllByText(sampleTranslation)).toHaveLength(0)
+
+    // "번역 보기" buttons should be present
+    const showBtns = screen.getAllByRole('button', { name: /show translation/i })
+    expect(showBtns.length).toBeGreaterThan(0)
+
+    // Click the first "번역 보기" button
+    fireEvent.click(showBtns[0])
+
+    // Now the translation should be visible
+    expect(screen.getAllByText(sampleTranslation).length).toBeGreaterThanOrEqual(1)
+
+    // Clicking "숨기기" or toggle button hides it again
+    const hideBtns = screen.getAllByRole('button', { name: /hide translation/i })
+    expect(hideBtns.length).toBeGreaterThan(0)
+    fireEvent.click(hideBtns[0])
+
+    expect(screen.queryAllByText(sampleTranslation)).toHaveLength(0)
+
+    unmount()
+  })
+
+  it('hides sentence translation by default in SentenceDetailModal and reveals when clicking show button', async () => {
+    localStorage.clear()
+    const { unmount } = render(<App />)
+
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+
+    // Click on an index card to open SentenceDetailModal
+    const cardTitle = screen.getByRole('heading', { level: 3, name: 'tucked away' })
+    fireEvent.click(cardTitle)
+
+    // Modal dialog should be open
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+    // The sentence translation should NOT be visible by default
+    const sampleTranslation = '그 작은 카페는 서점 뒤편에 아늑하게 자리 잡고 있습니다.'
+    expect(screen.queryByText(`"${sampleTranslation}"`)).not.toBeInTheDocument()
+
+    // Modal should show "번역이 숨겨져 있습니다" or "번역 보기" button
+    const showBtns = within(screen.getByRole('dialog')).getAllByRole('button', { name: /show translation/i })
+    expect(showBtns.length).toBeGreaterThan(0)
+
+    // Click "번역 보기"
+    fireEvent.click(showBtns[0])
+
+    // Now the translation is revealed
+    expect(screen.getByText(`"${sampleTranslation}"`)).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

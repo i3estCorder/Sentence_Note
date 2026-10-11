@@ -6,6 +6,8 @@ import {
   ArrowLeft,
   Menu,
   ArrowUpDown,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
 import { highlightMultiPhrases } from '../utils/highlight'
@@ -38,6 +40,15 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
   onSelectIndexToEdit,
 }) => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('index-asc')
+  // Revealed translations state: default hidden for all sentences
+  const [revealedTranslationIds, setRevealedTranslationIds] = useState<Record<string, boolean>>({})
+
+  const toggleTranslation = (sentenceId: string) => {
+    setRevealedTranslationIds((prev) => ({
+      ...prev,
+      [sentenceId]: !prev[sentenceId],
+    }))
+  }
 
   const favoriteSentences = sentences.filter((s) => s.isFavorite)
 
@@ -157,6 +168,26 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
+                      {card.sentence.translation && (
+                        <button
+                          type="button"
+                          onClick={() => toggleTranslation(card.sentence.id)}
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                            revealedTranslationIds[card.sentence.id]
+                              ? 'text-[#133d2e] dark:text-[#34d399] bg-[#e8f5ee] dark:bg-[#1b352b]'
+                              : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#eae6dc] dark:hover:bg-[#1b2b27]'
+                          }`}
+                          aria-label={revealedTranslationIds[card.sentence.id] ? 'Hide translation' : 'Show translation'}
+                          title={revealedTranslationIds[card.sentence.id] ? '번역 숨기기' : '번역 보기'}
+                        >
+                          {revealedTranslationIds[card.sentence.id] ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         onClick={() => onToggleFavorite(card.sentence.id)}
@@ -190,9 +221,34 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
                       </p>
 
                       {card.sentence.translation && (
-                        <p className="mt-1.5 text-xs text-[#527063] dark:text-[#8ea49a] font-sans">
-                          {card.sentence.translation}
-                        </p>
+                        <div className="mt-2.5 pt-2 border-t border-[#eeebe3] dark:border-[#283d36]">
+                          {revealedTranslationIds[card.sentence.id] ? (
+                            <div className="flex items-start justify-between gap-2 animate-in fade-in duration-150">
+                              <p className="text-xs text-[#527063] dark:text-[#8ea49a] font-sans leading-relaxed">
+                                {card.sentence.translation}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => toggleTranslation(card.sentence.id)}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#7c8d85] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-[#e4ede8] px-1.5 py-0.5 rounded hover:bg-[#ede9df] dark:hover:bg-[#20342f] transition-colors shrink-0 cursor-pointer"
+                                aria-label="Hide translation"
+                              >
+                                <EyeOff className="w-3 h-3" />
+                                <span>숨기기</span>
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => toggleTranslation(card.sentence.id)}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#3b6b58] dark:text-[#6ee7b7] hover:text-[#12382c] dark:hover:text-[#a7f3d0] transition-colors py-0.5 group cursor-pointer"
+                              aria-label="Show translation"
+                            >
+                              <Eye className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                              <span>번역 보기</span>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

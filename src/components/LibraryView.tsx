@@ -12,6 +12,8 @@ import {
   Download,
   Upload,
   Sparkles,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import type { SentenceData } from '../types'
 import { SentenceDetailModal } from './SentenceDetailModal'
@@ -76,6 +78,15 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const [selectedDetailGroup, setSelectedDetailGroup] = useState<GroupedIndex | null>(null)
   const [sentenceToEdit, setSentenceToEdit] = useState<SentenceData | null>(null)
   const [sentenceToDelete, setSentenceToDelete] = useState<SentenceData | null>(null)
+  // Revealed translations state: default hidden for all sentences
+  const [revealedTranslationIds, setRevealedTranslationIds] = useState<Record<string, boolean>>({})
+
+  const toggleTranslation = (sentenceId: string) => {
+    setRevealedTranslationIds((prev) => ({
+      ...prev,
+      [sentenceId]: !prev[sentenceId],
+    }))
+  }
 
   // Google Photos style fast-scroll floating bubble state
   const [scrollingLabel, setScrollingLabel] = useState<string>('')
@@ -623,6 +634,28 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     </span>
 
                                     <div className="flex items-center gap-1">
+                                      {sentence.translation && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            toggleTranslation(sentence.id)
+                                          }}
+                                          className={`w-6.5 h-6.5 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                                            revealedTranslationIds[sentence.id]
+                                              ? 'text-[#12382c] dark:text-[#a7f3d0] bg-[#e3eedf] dark:bg-[#1f3d32]'
+                                              : 'text-[#8c9e96] dark:text-[#6a8076] hover:text-[#12382c] dark:hover:text-[#e4ede8] hover:bg-[#eae5d8] dark:hover:bg-[#20342f]'
+                                          }`}
+                                          title={revealedTranslationIds[sentence.id] ? '번역 숨기기' : '번역 보기'}
+                                          aria-label={revealedTranslationIds[sentence.id] ? 'Hide translation' : 'Show translation'}
+                                        >
+                                          {revealedTranslationIds[sentence.id] ? (
+                                            <EyeOff className="w-3.5 h-3.5 stroke-[2.2]" />
+                                          ) : (
+                                            <Eye className="w-3.5 h-3.5 stroke-[2.2]" />
+                                          )}
+                                        </button>
+                                      )}
                                       <button
                                         type="button"
                                         onClick={(e) => {
@@ -683,9 +716,42 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                   </p>
 
                                   {sentence.translation && (
-                                    <p className="mt-1.5 text-xs text-[#527063] dark:text-[#8ea49a] font-sans">
-                                      {sentence.translation}
-                                    </p>
+                                    revealedTranslationIds[sentence.id] ? (
+                                      <div className="mt-2 pt-2 border-t border-[#f0ece2] dark:border-[#23352f] flex items-start justify-between gap-2 animate-in fade-in duration-150">
+                                        <p className="text-xs text-[#456356] dark:text-[#9fc4b5] font-sans leading-relaxed">
+                                          {sentence.translation}
+                                        </p>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            toggleTranslation(sentence.id)
+                                          }}
+                                          className="text-[11px] font-semibold text-[#667e74] dark:text-[#7f998d] hover:text-[#12382c] dark:hover:text-white shrink-0 inline-flex items-center gap-1 cursor-pointer py-0.5 px-1.5 rounded-md hover:bg-[#eae5d8] dark:hover:bg-[#20342f] transition-colors"
+                                          title="번역 숨기기"
+                                          aria-label="Hide translation"
+                                        >
+                                          <EyeOff className="w-3 h-3" />
+                                          <span>숨기기</span>
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="mt-1.5 flex items-center">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            toggleTranslation(sentence.id)
+                                          }}
+                                          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold text-[#5a7469] dark:text-[#8ea49a] hover:text-[#12382c] dark:hover:text-white bg-[#f2eee5]/80 dark:bg-[#1d2d27] hover:bg-[#eae4d7] dark:hover:bg-[#253d34] transition-colors cursor-pointer"
+                                          title="번역 보기"
+                                          aria-label="Show translation"
+                                        >
+                                          <Eye className="w-3 h-3 text-[#3d5a4e] dark:text-[#76b399]" />
+                                          <span>번역 보기</span>
+                                        </button>
+                                      </div>
+                                    )
                                   )}
                                 </div>
                               ))}

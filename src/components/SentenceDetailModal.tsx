@@ -11,6 +11,8 @@ import {
   Sparkles,
   FileText,
   Trash2,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import type { SentenceData } from '../types'
 import { getIndexMeaning, getSentenceTranslation } from '../utils/dictionary'
@@ -48,6 +50,15 @@ export const SentenceDetailModal: React.FC<SentenceDetailModalProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isEditSentenceOpen, setIsEditSentenceOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [isTranslationVisible, setIsTranslationVisible] = useState(false)
+
+  // Reset translation visibility when modal opens or selected sentence changes without effect
+  const currentSentenceKey = `${group?.phrase}-${selectedSentenceIndex}`
+  const [prevSentenceKey, setPrevSentenceKey] = useState(currentSentenceKey)
+  if (prevSentenceKey !== currentSentenceKey) {
+    setPrevSentenceKey(currentSentenceKey)
+    setIsTranslationVisible(false)
+  }
 
 
   // Close on Escape key
@@ -260,16 +271,54 @@ export const SentenceDetailModal: React.FC<SentenceDetailModalProps> = ({
 
           {/* 3. Sentence Translation (문장 뜻/한국어 해석) */}
           <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7c8d85] dark:text-[#8ea49a]">
-              <Languages className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
-              <span>문장 뜻 (Sentence Translation)</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7c8d85] dark:text-[#8ea49a]">
+                <Languages className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
+                <span>문장 뜻 (Sentence Translation)</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsTranslationVisible((prev) => !prev)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer bg-[#f5f2e9] dark:bg-[#1b2b27] hover:bg-[#ede9df] dark:hover:bg-[#20342f] text-[#12382c] dark:text-[#e4ede8]"
+                aria-label={isTranslationVisible ? 'Hide translation' : 'Show translation'}
+              >
+                {isTranslationVisible ? (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5" />
+                    <span>번역 숨기기</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
+                    <span className="text-[#133d2e] dark:text-[#34d399]">번역 보기</span>
+                  </>
+                )}
+              </button>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#eef7f2] dark:bg-[#132d21] border border-[#cbe6d8] dark:border-[#204a37]">
-              <p className="text-sm sm:text-base text-[#11382b] dark:text-[#a7f3d0] font-medium leading-relaxed">
-                "{sentenceTranslation}"
-              </p>
-            </div>
+            {isTranslationVisible ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#eef7f2] dark:bg-[#132d21] border border-[#cbe6d8] dark:border-[#204a37] animate-in fade-in duration-150">
+                <p className="text-sm sm:text-base text-[#11382b] dark:text-[#a7f3d0] font-medium leading-relaxed">
+                  "{sentenceTranslation}"
+                </p>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsTranslationVisible(true)}
+                className="w-full text-left p-3.5 sm:p-4 rounded-2xl bg-[#f7f5ed] dark:bg-[#182622] border border-dashed border-[#dcd7cb] dark:border-[#283d36] flex items-center justify-between cursor-pointer hover:bg-[#f0ece1] dark:hover:bg-[#1e2f2a] transition-colors group"
+                aria-label="Show translation"
+              >
+                <span className="text-xs font-medium text-[#7c8d85] dark:text-[#8ea49a] group-hover:text-[#12382c] dark:group-hover:text-[#e4ede8] transition-colors">
+                  번역이 숨겨져 있습니다. 클릭하여 확인하세요.
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-[#133d2e] dark:text-[#34d399]">
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>번역 보기</span>
+                </span>
+              </button>
+            )}
           </div>
 
           {/* 4. Additional Study Notes (추가 학습 정보) */}

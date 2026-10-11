@@ -11,6 +11,7 @@ import { NewSentenceModal } from './components/NewSentenceModal'
 import { LibraryView } from './components/LibraryView'
 import { ReviewView } from './components/ReviewView'
 import { FavoritesView } from './components/FavoritesView'
+import { AboutView } from './components/AboutView'
 import { Toast, type ToastMessage } from './components/Toast'
 import { initialSentences } from './data/mockData'
 import type { NavItemId, SentenceData, IndexPhrase } from './types'
@@ -469,6 +470,15 @@ export function App() {
               onToggleFavorite={handleToggleFavorite}
               onDeleteSentence={handleDeleteSentence}
               onBackToMain={() => setCurrentNav('library')}
+              onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+            />
+          )}
+
+          {/* View 5: About SentVault */}
+          {currentNav === 'about' && (
+            <AboutView
+              onNavigateToLibrary={() => setCurrentNav('library')}
+              onNavigateToAdd={() => setIsNewSentenceModalOpen(true)}
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
             />
           )}

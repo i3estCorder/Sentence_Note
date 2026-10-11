@@ -6,6 +6,7 @@ import {
   X,
   Sun,
   Moon,
+  Info,
 } from 'lucide-react'
 import type { NavItemId } from '../types'
 
@@ -59,6 +60,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Favorites',
       icon: <Star className="w-4 h-4 shrink-0 stroke-[2]" aria-hidden="true" />,
     },
+    {
+      id: 'about',
+      label: 'About',
+      icon: <Info className="w-4 h-4 shrink-0 stroke-[2]" aria-hidden="true" />,
+    },
   ]
 
   const renderContent = (isMobile: boolean) => (
@@ -72,13 +78,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             if (isMobile) onClose()
           }}
           className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] rounded-lg p-1 -m-1 text-left cursor-pointer"
-          aria-label="Sentence Note Home (Go to Library)"
+          aria-label="SentVault Home (Go to Library)"
         >
           <div className="w-8 h-8 rounded-lg bg-[#133d2e] dark:bg-[#1d5743] text-white flex items-center justify-center font-bold text-xs tracking-tight shadow-sm shrink-0">
-            SN
+            SV
           </div>
           <span className="font-semibold text-base text-[#12382c] dark:text-[#e4ede8] tracking-tight group-hover:text-[#0b271d] dark:group-hover:text-white transition-colors">
-            sentence note
+            sentvault
           </span>
         </button>
 
@@ -201,8 +207,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         <div>
-          <p className="font-medium text-[#4e635a] dark:text-[#8ba397]">Sentence Note v1.0</p>
-          <p className="mt-0.5">Wordbook Learning App</p>
+          <p className="font-medium text-[#4e635a] dark:text-[#8ba397]">SentVault v1.0</p>
+          <p className="mt-0.5">Context & Index Vault</p>
         </div>
       </div>
     </div>

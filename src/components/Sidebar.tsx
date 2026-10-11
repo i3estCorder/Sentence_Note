@@ -64,13 +64,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             if (isMobile) onClose()
           }}
           className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#133d2e] rounded-lg p-1 -m-1 text-left cursor-pointer"
-          aria-label="Sentence Vault Home (Go to main screen)"
+          aria-label="Sentence Note Home (Go to main screen)"
         >
           <div className="w-8 h-8 rounded-lg bg-[#133d2e] text-white flex items-center justify-center font-bold text-xs tracking-tight shadow-sm shrink-0">
-            SV
+            SN
           </div>
           <span className="font-semibold text-base text-[#12382c] tracking-tight group-hover:text-[#0b271d] transition-colors">
-            sentence vault
+            sentence note
           </span>
         </button>
 
@@ -148,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Footer Info / Version */}
       <div className="pt-6 border-t border-[#ede9e0] text-xs text-[#7e8f87]">
-        <p className="font-medium text-[#4e635a]">Sentence Vault v1.0</p>
+        <p className="font-medium text-[#4e635a]">Sentence Note v1.0</p>
         <p className="mt-0.5">Wordbook Learning App</p>
       </div>
     </div>

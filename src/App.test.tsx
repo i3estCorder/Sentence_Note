@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import App from './App'
 
-describe('Sentence Vault - Multi-Index Management', () => {
+describe('Sentence Note - Multi-Index Management', () => {
   it('renders the header and primary components correctly', () => {
     render(<App />)
 
@@ -11,7 +11,7 @@ describe('Sentence Vault - Multi-Index Management', () => {
     expect(screen.getByText(/change its phrase, tags, or remove it from this sentence/i)).toBeInTheDocument()
 
     // Check Brand Section in sidebar
-    expect(screen.getByRole('button', { name: /sentence vault home/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /sentence note home/i })).toBeInTheDocument()
 
     // Check Sidebar Navigation items (Word index removed; Library, Review, Favorites remain)
     expect(screen.getByRole('button', { name: /library/i })).toBeInTheDocument()
@@ -42,7 +42,7 @@ describe('Sentence Vault - Multi-Index Management', () => {
     expect(screen.getByRole('heading', { level: 1, name: /review & practice/i })).toBeInTheDocument()
 
     // Click brand logo button to return to main screen
-    const brandBtn = screen.getByRole('button', { name: /sentence vault home/i })
+    const brandBtn = screen.getByRole('button', { name: /sentence note home/i })
     fireEvent.click(brandBtn)
     expect(screen.getByRole('heading', { level: 1, name: /edit an index/i })).toBeInTheDocument()
   })

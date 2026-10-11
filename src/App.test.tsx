@@ -623,6 +623,40 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     unmount()
   })
+
+  it('renders a sentence only once in FavoritesView even if it has multiple indexes, while showing all indexes in header', () => {
+    localStorage.clear()
+    const storedMultiIndexFavorite = [
+      {
+        id: 'fav-multi',
+        text: 'The small café is tucked away behind the bookstore.',
+        indexes: [
+          { id: 'idx-1', phrase: 'tucked away' },
+          { id: 'idx-2', phrase: 'behind' },
+        ],
+        isFavorite: true,
+      },
+    ]
+    localStorage.setItem('sentence_vault_v1', JSON.stringify(storedMultiIndexFavorite))
+
+    const { unmount } = render(<App />)
+
+    // Navigate to Favorites view
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /favorites/i }))
+
+    // Only ONE card/sentence should be rendered for this sentence
+    expect(screen.getAllByText(/The small café is/i)).toHaveLength(1)
+
+    // The card header should display BOTH indexes
+    expect(screen.getAllByText('tucked away').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('behind').length).toBeGreaterThanOrEqual(1)
+
+    // Title should contain both phrases
+    expect(screen.getByRole('heading', { level: 3, name: /tucked away, behind/i })).toBeInTheDocument()
+
+    unmount()
+  })
 })
 
 

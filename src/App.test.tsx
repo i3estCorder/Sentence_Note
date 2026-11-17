@@ -22,7 +22,7 @@ describe('Sentence Note - Multi-Index Management', () => {
     expect(screen.getByRole('button', { name: '복습 시작' })).toBeInTheDocument()
 
     // Check Brand Section in sidebar
-    expect(screen.getByRole('button', { name: /sentvault home/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /sentex home/i })).toBeInTheDocument()
 
     // Check Sidebar Navigation items (Word index removed; Library, Review, Favorites remain)
     const nav = screen.getByRole('navigation', { name: /main navigation/i })
@@ -61,7 +61,7 @@ describe('Sentence Note - Multi-Index Management', () => {
     expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
 
     // Click brand logo button to return to Library home screen
-    const brandBtn = screen.getByRole('button', { name: /sentvault home/i })
+    const brandBtn = screen.getByRole('button', { name: /sentex home/i })
     fireEvent.click(brandBtn)
     expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
   })
@@ -777,15 +777,15 @@ describe('Sentence Note - Multi-Index Management', () => {
     unmount()
   })
 
-  it('navigates to About page and displays SentVault introduction and guide', () => {
+  it('navigates to About page and displays Sentex introduction and guide', () => {
     const { unmount } = render(<App />)
 
     const nav = screen.getByRole('navigation', { name: /main navigation/i })
     const aboutBtn = within(nav).getByRole('button', { name: /about/i })
     fireEvent.click(aboutBtn)
 
-    // Heading for SentVault in About page
-    expect(screen.getByRole('heading', { level: 1, name: /sentvault/i })).toBeInTheDocument()
+    // Heading for Sentex in About page
+    expect(screen.getByRole('heading', { level: 1, name: /sentex/i })).toBeInTheDocument()
     expect(screen.getByText(/상세 사용 방법/i)).toBeInTheDocument()
 
     // Click Back to Library

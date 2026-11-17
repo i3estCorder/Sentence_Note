@@ -11,7 +11,7 @@ import {
   ArrowUpDown,
   Download,
   Upload,
-  Sparkles,
+  ListFilter,
   Eye,
   EyeOff,
   Volume2,
@@ -53,18 +53,6 @@ interface AlphabetSection {
   letter: string
   indexes: GroupedIndex[]
 }
-
-// Bookmark color palette inspired by neon book index tabs (Image 2)
-const TAB_PALETTES = [
-  { bg: 'bg-[#ff2d7a]', border: 'border-[#e02068]', text: 'text-white' },
-  { bg: 'bg-[#84cc16]', border: 'border-[#65a30d]', text: 'text-[#14360e]' },
-  { bg: 'bg-[#facc15]', border: 'border-[#eab308]', text: 'text-[#422006]' },
-  { bg: 'bg-[#fb923c]', border: 'border-[#f97316]', text: 'text-white' },
-  { bg: 'bg-[#c084fc]', border: 'border-[#a855f7]', text: 'text-white' },
-  { bg: 'bg-[#38bdf8]', border: 'border-[#0ea5e9]', text: 'text-white' },
-  { bg: 'bg-[#2dd4bf]', border: 'border-[#14b8a6]', text: 'text-[#042f2e]' },
-]
-
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
   sentences,
@@ -112,10 +100,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     })
   }
 
-  // Google Photos style fast-scroll floating bubble state
+  // Current alphabet section for the navigation rail
   const [scrollingLabel, setScrollingLabel] = useState<string>('')
-  const [isScrolling, setIsScrolling] = useState<boolean>(false)
-  const scrollTimeoutRef = useRef<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // 1. Group sentences by unique index phrase (Case-insensitive unique phrase grouping)
@@ -257,10 +243,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     })
   }, [sentences, searchQuery, sentenceSortOrder])
 
-  // Scroll listener for Google Photos style fast-scroll indicator
+  // Keep the active alphabet tab in sync with the visible section
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolling(true)
 
       const elements = document.querySelectorAll<HTMLElement>('[data-scroll-anchor]')
       let currentLabel = ''
@@ -281,21 +266,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         setScrollingLabel(elements[0].getAttribute('data-scroll-anchor') || '')
       }
 
-      if (scrollTimeoutRef.current) {
-        window.clearTimeout(scrollTimeoutRef.current)
-      }
 
-      scrollTimeoutRef.current = window.setTimeout(() => {
-        setIsScrolling(false)
-      }, 1200)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      if (scrollTimeoutRef.current) {
-        window.clearTimeout(scrollTimeoutRef.current)
-      }
     }
   }, [alphabetSections])
 
@@ -303,15 +279,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const scrollToLetter = (letter: string) => {
     const el = document.getElementById(`section-${letter}`)
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })
       setScrollingLabel(letter)
-      setIsScrolling(true)
-      if (scrollTimeoutRef.current) {
-        window.clearTimeout(scrollTimeoutRef.current)
-      }
-      scrollTimeoutRef.current = window.setTimeout(() => {
-        setIsScrolling(false)
-      }, 1400)
+
     }
   }
 
@@ -338,7 +308,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   }
 
   return (
-    <div className="relative space-y-6 pb-24">
+    <div className="library-view relative space-y-6 pb-24">
       {/* Hidden JSON file input */}
       <input
         ref={fileInputRef}
@@ -386,6 +356,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               {sentences.length} sentences
             </span>
           </div>
+          <p className="library-description">모아 둔 문장에서, 내 표현을 발견하세요.</p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
@@ -432,9 +403,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       </section>
 
       {/* Controls Bar: Search, View Mode Toggle, and Sort Order */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
+      <div className="library-controls">
         {/* Search Bar */}
-        <div className="relative flex-1 max-w-md">
+        <div className="library-search relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8d85] dark:text-[#8ea49a]" />
           <input
             type="text"
@@ -455,7 +426,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           <span>New sentence</span>
         </button>
         {/* View Mode & Sort Controls */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="library-view-controls flex items-center gap-2.5 flex-wrap">
           {/* Index vs Sentence Mode Tabs */}
           <div className="inline-flex items-center p-1 rounded-xl bg-[#ede9df] dark:bg-[#1b2b27] border border-[#dedad0] dark:border-[#283d36] text-xs font-semibold text-[#50675d] dark:text-[#8ea49a]">
             <button
@@ -469,7 +440,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               aria-pressed={viewMode === 'index'}
               aria-label="View by index"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
+              <ListFilter className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
               <span>Index ({groupedIndexList.length})</span>
             </button>
 
@@ -525,43 +496,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* GOOGLE PHOTOS STYLE FLOATING FAST-SCROLL BUBBLE */}
-      {/* ------------------------------------------------------------- */}
-      <div
-        aria-live="polite"
-        className={`fixed right-14 sm:right-20 top-24 z-50 pointer-events-none transition-all duration-300 transform ${
-          isScrolling && scrollingLabel && viewMode === 'index'
-            ? 'opacity-100 translate-x-0 scale-100 shadow-2xl'
-            : 'opacity-0 translate-x-4 scale-90'
-        }`}
-      >
-        <div className="bg-[#12382c]/95 backdrop-blur-md text-white px-4 py-2.5 rounded-2xl border border-[#235845] flex items-center gap-3 shadow-xl">
-          <div className="w-8 h-8 rounded-xl bg-[#fef08a] text-[#12382c] font-black text-sm flex items-center justify-center shadow-xs">
-            {scrollingLabel.slice(0, 1).toUpperCase()}
-          </div>
-          <div className="pr-1">
-            <div className="text-[10px] uppercase font-bold tracking-wider text-[#a2cbba]">
-              Index Position
-            </div>
-            <div className="text-sm font-bold text-white tracking-tight capitalize">
-              {scrollingLabel}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ------------------------------------------------------------- */}
-      {/* IMAGE 2 INSPIRED BOOKMARK INDEX TAB RAIL (Right Edge Sticky) */}
-      {/* ------------------------------------------------------------- */}
       {viewMode === 'index' && activeLetters.length > 0 && (
         <aside
           aria-label="Alphabetical fast-jump tabs"
-          className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-1 items-end pointer-events-auto"
+          className="alphabet-rail"
         >
-          {activeLetters.map((letter, idx) => {
-            const palette = TAB_PALETTES[idx % TAB_PALETTES.length]
-            const isCurrent = scrollingLabel.toUpperCase().startsWith(letter.toUpperCase())
+          {activeLetters.map((letter) => {
+            const isCurrent = (scrollingLabel.replace('Chapter ', '').slice(0, 1).toUpperCase() || activeLetters[0]) === letter
 
             return (
               <button
@@ -569,16 +510,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 type="button"
                 onClick={() => scrollToLetter(letter)}
                 title={`Jump to section ${letter}`}
-                className={`group relative flex items-center justify-center rounded-l-md transition-all cursor-pointer font-bold select-none ${
-                  palette.bg
-                } ${palette.text} ${
-                  isCurrent
-                    ? 'w-10 h-7 text-xs font-black shadow-lg translate-x-0 brightness-110 drop-shadow-sm'
-                    : 'w-7 h-6 text-[11px] opacity-85 hover:opacity-100 hover:w-9 hover:-translate-x-1 shadow-xs'
-                }`}
-                style={{
-                  clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 12% 50%)',
-                }}
+                className={`alphabet-tab ${isCurrent ? 'is-current' : ''}`}
+                aria-current={isCurrent ? 'location' : undefined}
               >
                 <span className="pl-1.5">{letter}</span>
 
@@ -607,8 +540,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             </span>
           </div>
 
-          {alphabetSections.map((section, secIdx) => {
-            const palette = TAB_PALETTES[secIdx % TAB_PALETTES.length]
+          {alphabetSections.map((section) => {
 
             return (
               <section
@@ -621,7 +553,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 <div className="flex items-center justify-between pb-2 border-b-2 border-[#e8e4da] dark:border-[#283d36]">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`inline-flex items-center justify-center min-w-8 h-7 px-2.5 rounded-lg text-xs font-black uppercase tracking-wider shadow-xs ${palette.bg} ${palette.text}`}
+                      className="chapter-letter"
                     >
                       <span>{section.letter}</span>
                     </div>
@@ -646,16 +578,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                         key={`${section.letter}-${group.phrase}-${groupIdx}`}
                         data-scroll-anchor={`${section.letter} · ${group.phrase}`}
                         onClick={() => setSelectedDetailGroup({ group, initialIndex: 0 })}
-                        className="scroll-mt-24 bg-white dark:bg-[#14201c] rounded-2xl p-5 sm:p-6 border border-[#ece7dc] dark:border-[#23352f] hover:border-[#133d2e]/30 dark:hover:border-[#34d399]/30 shadow-[0_2px_10px_-2px_rgba(20,50,40,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(20,50,40,0.08)] transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:-translate-y-0.5"
+                        className="expression-card scroll-mt-24 bg-white dark:bg-[#14201c] rounded-2xl p-5 sm:p-6 border border-[#ece7dc] dark:border-[#23352f] hover:border-[#133d2e]/30 dark:hover:border-[#34d399]/30 shadow-[0_2px_10px_-2px_rgba(20,50,40,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(20,50,40,0.08)] transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:-translate-y-0.5"
                       >
                         <div>
                           {/* Card Header: Index Phrase as primary hero */}
                           <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#f4f1e8] dark:border-[#23352f]">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                                <span className="text-[11px] font-bold tracking-wider px-2.5 py-0.5 rounded-lg bg-[#e8f5ee] dark:bg-[#1b352b] text-[#134937] dark:text-[#a7f3d0] ring-1 ring-[#c5e6d3] dark:ring-[#235845]">
-                                  {group.phrase}
-                                </span>
                                 {hasFavorite && (
                                   <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 ring-1 ring-amber-200/80 dark:ring-amber-800/60 px-2 py-0.5 rounded-lg flex items-center gap-1">
                                     <Star className="w-3 h-3 fill-current text-amber-500" />
@@ -669,8 +598,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                 )}
                               </div>
 
-                              <h3 className="text-lg sm:text-xl font-bold text-[#12382c] dark:text-[#e4ede8] tracking-tight truncate">
-                                {group.phrase}
+                              <h3 className="expression-title">
+                                <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedDetailGroup({ group, initialIndex: 0 }) }}>
+                                  {group.phrase}
+                                </button>
                               </h3>
                             </div>
 
@@ -729,7 +660,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     e.stopPropagation()
                                     setSelectedDetailGroup({ group, initialIndex: sIdx })
                                   }}
-                                  className="p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] dark:bg-[#1b2b27] border border-[#eeebe3] dark:border-[#283d36] hover:border-[#ded8ca] dark:hover:border-[#38534a] transition-all cursor-pointer"
+                                  className="context-example p-3 sm:p-3.5 rounded-xl bg-[#faf9f5] dark:bg-[#1b2b27] border border-[#eeebe3] dark:border-[#283d36] hover:border-[#ded8ca] dark:hover:border-[#38534a] transition-all cursor-pointer"
                                 >
                                   {/* Sentence mini toolbar: Number, Favorite, Edit, Delete */}
                                   <div className="flex items-center justify-between mb-1.5 gap-2">
@@ -955,7 +886,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                           key={idx.id}
                           className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#dcf2e6] dark:bg-[#183d2f] text-[#12382c] dark:text-[#9fe2c7] ring-1 ring-[#b8ebd2] dark:ring-[#235845]"
                         >
-                          <Sparkles className="w-2.5 h-2.5 text-[#133d2e] dark:text-[#34d399]" />
+                          <ListFilter className="w-2.5 h-2.5 text-[#133d2e] dark:text-[#34d399]" />
                           {idx.phrase}
                         </span>
                       ))

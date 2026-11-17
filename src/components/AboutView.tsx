@@ -58,13 +58,13 @@ export const AboutView: React.FC<AboutViewProps> = ({
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-            SentVault <span className="text-[#a7f3d0] font-normal text-2xl sm:text-3xl">(센트볼트)</span>
+            Sentex <span className="text-[#a7f3d0] font-normal text-2xl sm:text-3xl">(센텍스)</span>
           </h1>
 
           <p className="text-sm sm:text-base text-[#c4ded3] leading-relaxed">
             단순히 단어만 따로 외우는 공부는 실제 대화에서 바로 입 밖으로 나오지 않습니다.
             <br className="hidden sm:inline" />
-            <strong>SentVault</strong>는 <span className="text-white font-semibold">실제 문맥(Context) 속 예문</span>과
+            <strong>Sentex</strong>는 <span className="text-white font-semibold">실제 문맥(Context) 속 예문</span>과
             <span className="text-white font-semibold"> N:M 색인(Multi-Index) 구조</span>, 그리고
             <span className="text-[#a7f3d0] font-semibold"> Anki식 과학적 SRS 복습 알고리즘</span>을 결합한 스마트 언어 자산 보관소입니다.
           </p>
@@ -98,10 +98,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
       <section className="space-y-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#12382c] dark:text-[#e4ede8] tracking-tight">
-            왜 SentVault인가요? (핵심 가치)
+            왜 Sentex인가요? (핵심 가치)
           </h2>
           <p className="text-xs sm:text-sm text-[#5f756c] dark:text-[#8ea49a] mt-1">
-            시중의 평범한 단어장과 차별화되는 SentVault만의 핵심 메커니즘입니다.
+            시중의 평범한 단어장과 차별화되는 Sentex만의 핵심 메커니즘입니다.
           </p>
         </div>
 
@@ -115,7 +115,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               1. N:M 멀티 인덱스 구조 (Multi-Index Linking)
             </h3>
             <p className="text-xs sm:text-sm text-[#556c61] dark:text-[#8ea49a] leading-relaxed">
-              한 문장에는 여러 숙어·표현이 들어있을 수 있고, 반대로 하나의 핵심 표현은 수많은 실제 예문에서 다르게 쓰입니다. SentVault는 문장과 인덱스 단어를 자유자재로 연결하여 표현 간의 관계를 입체적으로 학습할 수 있습니다.
+              한 문장에는 여러 숙어·표현이 들어있을 수 있고, 반대로 하나의 핵심 표현은 수많은 실제 예문에서 다르게 쓰입니다. Sentex는 문장과 인덱스 단어를 자유자재로 연결하여 표현 간의 관계를 입체적으로 학습할 수 있습니다.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
             상세 사용 방법 (How to Use)
           </h2>
           <p className="text-xs sm:text-sm text-[#5f756c] dark:text-[#8ea49a] mt-1">
-            SentVault를 200% 활용하는 5단계 가이드입니다.
+            Sentex를 200% 활용하는 5단계 가이드입니다.
           </p>
         </div>
 
@@ -270,7 +270,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
         <div className="flex items-center gap-2">
           <Lightbulb className="w-5 h-5 text-amber-500 fill-amber-500" />
           <h3 className="text-base sm:text-lg font-bold text-[#12382c] dark:text-[#e4ede8]">
-            SentVault 학습 꿀팁 (Pro Tips)
+            Sentex 학습 꿀팁 (Pro Tips)
           </h3>
         </div>
 
@@ -300,9 +300,9 @@ export const AboutView: React.FC<AboutViewProps> = ({
       <footer className="pt-6 border-t border-[#eae6dc]/60 dark:border-[#23352f] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7c8d85] dark:text-[#6a8076]">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-[#133d2e] dark:bg-[#1d5743] text-white flex items-center justify-center font-bold text-[10px]">
-            SV
+            Sx
           </div>
-          <span className="font-semibold text-[#12382c] dark:text-[#c4ded3]">SentVault</span>
+          <span className="font-semibold text-[#12382c] dark:text-[#c4ded3]">Sentex</span>
           <span>&bull; Smart Index & Context Sentence Vault</span>
         </div>
         <div>

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-sans: 'Avenir Next', 'Segoe UI', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     --surface: #ffffff;
@@ -89,4 +89,41 @@
   [role='button'] {
     transition-duration: 160ms;
   }
+}
+
+/* Reading comes first: quiet chrome, expressive dictionary headings. */
+.library-description { margin-top: 10px; font-size: 14px; color: #5f756c; }
+.library-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+.library-search input { height: 48px; }
+.library-view-controls { grid-column: 1 / -1; justify-content: space-between; }
+.alphabet-rail { position: sticky; top: 12px; z-index: 20; display: flex; gap: 4px; padding: 8px; overflow-x: auto; background: #ffffff; border: 1px solid #dce5df; border-radius: 12px; }
+.alphabet-tab { flex: 0 0 36px; height: 36px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; color: #486358; }
+.alphabet-tab > span { padding: 0; }
+.alphabet-tab > span + span { display: none; }
+.alphabet-tab:hover { background: #edf3ef; }
+.alphabet-tab.is-current { background: #234f40; color: white; }
+.chapter-letter { font-family: Georgia, serif; font-size: 32px; color: #234f40; line-height: 1.2; }
+.library-view .expression-card { border-color: #dce5df; border-radius: 12px; box-shadow: none; transform: none; }
+.library-view .expression-card:hover { border-color: #7f9c8d; box-shadow: none; transform: none; }
+.expression-title { font: 500 28px/1.25 Georgia, 'Times New Roman', serif; color: #234f40; overflow-wrap: anywhere; }
+.expression-title button { text-align: left; cursor: pointer; }
+.library-view .context-example { background: #f5f7f5; border-color: transparent; border-radius: 6px; }
+.context-example p { max-width: 70ch; }
+.dark .library-description { color: #a0b5ab; }
+.dark .alphabet-rail { background: #14201c; border-color: #344a40; }
+.dark .alphabet-tab { color: #b9cec2; }
+.dark .alphabet-tab:hover { background: #263e32; }
+.dark .alphabet-tab.is-current { background: #b9dfcc; color: #14201c; }
+.dark .chapter-letter, .dark .expression-title { color: #d5e9dd; }
+.dark .library-view .expression-card { border-color: #344a40; }
+.dark .library-view .context-example { background: #1b2b27; }
+:where(button, a, summary, select, input, textarea):focus-visible { outline: 3px solid #598d75; outline-offset: 3px; }
+@media (max-width: 480px) {
+  .library-controls { grid-template-columns: minmax(0, 1fr); }
+  .library-view-controls { gap: 12px; }
+  .expression-title { font-size: 25px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

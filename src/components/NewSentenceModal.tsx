@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { Plus, X, Languages, FileText } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
+import { addPhrases } from '../utils/vault'
+import { useSentenceDialog } from '../utils/useSentenceDialog'
+import { SentencePhraseFields } from './SentencePhraseFields'
 
 interface NewSentenceModalProps {
   isOpen: boolean
@@ -16,33 +19,20 @@ export const NewSentenceModal: React.FC<NewSentenceModalProps> = ({
   const [text, setText] = useState('')
   const [translation, setTranslation] = useState('')
   const [notes, setNotes] = useState('')
+  const [indexes, setIndexes] = useState<IndexPhrase[]>([])
+  const [selection, setSelection] = useState('')
   const [phrasesInput, setPhrasesInput] = useState('')
-
-  if (!isOpen) return null
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!text.trim()) return
 
-    const rawPhrases = phrasesInput.trim()
-    const phrasesList = rawPhrases
-      ? rawPhrases
-          .split(',')
-          .map((p) => p.trim())
-          .filter((p) => p.length > 0)
-      : [text.split(' ')[0] || 'index']
-
-    const indexes: IndexPhrase[] = phrasesList.map((p, i) => ({
-      id: `idx-${Date.now()}-${i}`,
-      phrase: p,
-    }))
-
     const newSentence: SentenceData = {
-      id: `sentence-${Date.now()}`,
+      id: `sentence-${crypto.randomUUID()}`,
       text: text.trim(),
       translation: translation.trim() || undefined,
       notes: notes.trim() || undefined,
-      indexes,
+      indexes: addPhrases(indexes, phrasesInput),
       isFavorite: false,
     }
 
@@ -51,6 +41,8 @@ export const NewSentenceModal: React.FC<NewSentenceModalProps> = ({
     setTranslation('')
     setNotes('')
     setPhrasesInput('')
+    setIndexes([])
+    setSelection('')
     onClose()
   }
 
@@ -59,11 +51,18 @@ export const NewSentenceModal: React.FC<NewSentenceModalProps> = ({
     setTranslation('')
     setNotes('')
     setPhrasesInput('')
+    setIndexes([])
+    setSelection('')
     onClose()
   }
 
+  const { dialogRef, textRef, handleDialogKey } = useSentenceDialog(isOpen, handleClose)
+  if (!isOpen) return null
+
   return (
     <div
+      ref={dialogRef}
+      onKeyDown={handleDialogKey}
       role="dialog"
       aria-modal="true"
       aria-labelledby="new-sentence-title"
@@ -103,9 +102,17 @@ export const NewSentenceModal: React.FC<NewSentenceModalProps> = ({
             </label>
             <textarea
               id="new-sentence-text"
+              ref={textRef}
+              onSelect={(event) => {
+                const field = event.currentTarget
+                setSelection(field.value.slice(field.selectionStart, field.selectionEnd).trim())
+              }}
               rows={3}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value)
+                setSelection('')
+              }}
               placeholder="e.g. She stumbled upon a rare antique clock in the attic."
               required
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#f6f5ef] dark:bg-[#1b2b27] border border-[#e4e0d4] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-sm focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] focus:bg-white dark:focus:bg-[#14201c] placeholder-[#8c9e96] dark:placeholder-[#6a8076] resize-none"
@@ -131,26 +138,15 @@ export const NewSentenceModal: React.FC<NewSentenceModalProps> = ({
             />
           </div>
 
-          {/* 3. Index Phrases */}
-          <div>
-            <label
-              htmlFor="primary-phrases"
-              className="text-xs font-bold text-[#446255] dark:text-[#a0b5ab] uppercase tracking-wider block mb-1.5"
-            >
-              인덱스 단어 / 표현 (Index Phrases)
-            </label>
-            <input
-              id="primary-phrases"
-              type="text"
-              value={phrasesInput}
-              onChange={(e) => setPhrasesInput(e.target.value)}
-              placeholder="쉼표(,)로 여러 개 입력 (예: stumbled upon, rare)"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#f6f5ef] dark:bg-[#1b2b27] border border-[#e4e0d4] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-sm focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] focus:bg-white dark:focus:bg-[#14201c] placeholder-[#8c9e96] dark:placeholder-[#6a8076]"
-            />
-            <p className="text-[11px] text-[#7a8f85] dark:text-[#8ea49a] mt-1">
-              문장 안에서 색인으로 묶을 핵심 단어나 표현을 쉼표로 구분해 입력하세요.
-            </p>
-          </div>
+          <SentencePhraseFields
+            id="new-sentence-phrases"
+            text={text}
+            selection={selection}
+            indexes={indexes}
+            onChange={setIndexes}
+            pending={phrasesInput}
+            onPendingChange={setPhrasesInput}
+          />
 
           {/* 4. Additional Study Notes (추가 정보 칸, 최대 1000자) */}
           <div>

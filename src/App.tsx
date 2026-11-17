@@ -15,6 +15,7 @@ import { HistoryView } from './components/HistoryView'
 import { AboutView } from './components/AboutView'
 import { Toast, type ToastMessage } from './components/Toast'
 import { initialSentences } from './data/mockData'
+import { cardId, isDue, isSentence, localDate, parseStats, readBackup, REVIEW_STORAGE_KEY, sentenceKey, type ReviewStats } from './utils/vault'
 import type { NavItemId, SentenceData, IndexPhrase } from './types'
 
 const STORAGE_KEY = 'sentence_vault_v1'
@@ -59,47 +60,20 @@ export function App() {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const valid = parsed.filter(
-            (s: SentenceData) =>
-              s &&
-              typeof s.text === 'string' &&
-              s.text.trim().length > 0 &&
-              Array.isArray(s.indexes) &&
-              s.indexes.some((idx) => idx && idx.phrase && idx.phrase.trim().length > 0)
-          )
-          if (valid.length > 0) {
-            // Deduplicate exact duplicate items and guarantee unique IDs
-            const seenIds = new Set<string>()
-            const seenContents = new Set<string>()
-            const uniqueSentences: SentenceData[] = []
+        if (Array.isArray(parsed)) {
+          const seenIds = new Set<string>()
+          const seenContents = new Set<string>()
+          const uniqueSentences: SentenceData[] = []
 
-            for (let i = 0; i < valid.length; i++) {
-              const item = valid[i]
-              const contentKey = `${item.text.trim()}__${item.indexes.map((idx: IndexPhrase) => idx.phrase.trim().toLowerCase()).sort().join(',')}`
-
-              if (seenContents.has(contentKey)) {
-                // Skip exact duplicate sentence content
-                continue
-              }
-              seenContents.add(contentKey)
-
-              let uniqueId = item.id
-              if (!uniqueId || seenIds.has(uniqueId)) {
-                uniqueId = `sentence-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`
-              }
-              seenIds.add(uniqueId)
-
-              uniqueSentences.push({
-                ...item,
-                id: uniqueId,
-              })
-            }
-
-            if (uniqueSentences.length > 0) {
-              return uniqueSentences
-            }
+          for (const item of parsed.filter(isSentence)) {
+            const key = sentenceKey(item)
+            if (seenContents.has(key)) continue
+            seenContents.add(key)
+            const id = seenIds.has(item.id) ? `sentence-${crypto.randomUUID()}` : item.id
+            seenIds.add(id)
+            uniqueSentences.push({ ...item, id })
           }
+          return uniqueSentences
         }
       }
     } catch (e) {
@@ -116,6 +90,26 @@ export function App() {
       console.error('Failed to save sentences to localStorage:', e)
     }
   }, [sentences])
+
+  const [reviewStats, setReviewStats] = useState<ReviewStats>(() => {
+    try {
+      return parseStats(JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY) ?? '{}'))
+    } catch {
+      return {}
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(reviewStats))
+    } catch (error) {
+      console.error('Failed to save review progress:', error)
+    }
+  }, [reviewStats])
+
+  const today = localDate()
+  const dueCount = sentences.reduce((total, sentence) =>
+    total + sentence.indexes.filter((index) => isDue(reviewStats[cardId(sentence, index)], today)).length, 0)
 
   const [activeSentenceId, setActiveSentenceId] = useState<string>(() => {
     return sentences[0]?.id || 'sentence-1'
@@ -188,7 +182,6 @@ export function App() {
             indexes: remainingIndexes,
           }
         })
-        .filter((s) => s.indexes.length > 0)
     )
 
     setIsDeleteModalOpen(false)
@@ -289,15 +282,19 @@ export function App() {
   // Export Sentences to JSON file
   const handleExportJSON = () => {
     try {
-      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(sentences, null, 2))
+      const cards = sentences.flatMap((sentence) => sentence.indexes.map((index) => cardId(sentence, index)))
+      const activeStats = Object.fromEntries(cards.filter((id) => reviewStats[id]).map((id) => [id, reviewStats[id]]))
+      const backup = { version: 1, sentences, reviewStats: activeStats }
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }))
       const downloadAnchor = document.createElement('a')
-      const fileName = `sentences-vault-${new Date().toISOString().slice(0, 10)}.json`
-      downloadAnchor.setAttribute('href', dataStr)
+      const fileName = `sentences-vault-${localDate()}.json`
+      downloadAnchor.setAttribute('href', url)
       downloadAnchor.setAttribute('download', fileName)
       document.body.appendChild(downloadAnchor)
       downloadAnchor.click()
       downloadAnchor.remove()
-      showToast('success', `Exported ${sentences.length} sentences as JSON`)
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      showToast('success', `문장 ${sentences.length}개와 복습 기록을 백업했습니다.`)
     } catch (e) {
       console.error('Export failed:', e)
       showToast('error', 'Failed to export sentences')
@@ -305,21 +302,55 @@ export function App() {
   }
 
   // Import Sentences from JSON file
-  const handleImportJSON = (importedData: SentenceData[]) => {
-    if (!Array.isArray(importedData) || importedData.length === 0) {
-      showToast('error', 'Invalid JSON data: Expected an array of sentences')
+  const handleImportJSON = (data: unknown) => {
+    const backup = readBackup(data)
+    if (!backup) {
+      showToast('error', '지원하는 백업 파일 형식이 아닙니다.')
       return
     }
 
-    // Merge or replace
-    setSentences((prev) => {
-      const existingIds = new Set(prev.map((s) => s.id))
-      const newItems = importedData.filter((s) => !existingIds.has(s.id))
-      const updated = [...prev, ...newItems]
-      return updated
-    })
+    const byId = new Map(sentences.map((sentence) => [sentence.id, sentence]))
+    const byContent = new Map(sentences.map((sentence) => [sentenceKey(sentence), sentence]))
+    const added: SentenceData[] = []
+    const restoredStats: ReviewStats = {}
+    let duplicates = 0
+    let invalid = backup.invalidStats
 
-    showToast('success', `Imported ${importedData.length} sentences successfully!`)
+    for (const item of backup.sentences) {
+      if (!isSentence(item)) {
+        invalid++
+        continue
+      }
+      const key = sentenceKey(item)
+      const existing = byId.get(item.id) ?? byContent.get(key)
+      if (existing) {
+        duplicates++
+        if (sentenceKey(existing) !== key) continue
+      } else {
+        added.push(item)
+        byId.set(item.id, item)
+        byContent.set(key, item)
+      }
+
+      const destination = existing ?? item
+      for (const index of item.indexes) {
+        const target = destination.indexes.find((candidate) =>
+          candidate.phrase.trim().toLowerCase() === index.phrase.trim().toLowerCase()
+          && (candidate.id === index.id || !destination.indexes.some((other) => other.id === index.id))
+        )
+        const incoming = backup.stats[cardId(item, index)]
+        if (!target || !incoming) continue
+        const id = cardId(destination, target)
+        const current = restoredStats[id] ?? reviewStats[id]
+        if (current && (current.lastReviewed ?? '') >= (incoming.lastReviewed ?? '')) continue
+        restoredStats[id] = { ...incoming, id }
+      }
+    }
+
+    if (added.length) setSentences((prev) => [...prev, ...added])
+    if (Object.keys(restoredStats).length) setReviewStats((prev) => ({ ...prev, ...restoredStats }))
+    showToast(invalid ? 'info' : 'success',
+      `추가 ${added.length}개 · 중복 ${duplicates}개 · 오류 ${invalid}개 · 복습 기록 ${Object.keys(restoredStats).length}개 복원`)
   }
 
   const indexCount = useMemo(() => {
@@ -335,7 +366,7 @@ export function App() {
   }, [sentences])
 
   return (
-    <div className="min-h-screen bg-[#f7f6f1] dark:bg-[#0c1412] text-[#16382c] dark:text-[#e4ede8] flex flex-col lg:flex-row antialiased selection:bg-[#dcf2e6] selection:text-[#12382c] dark:selection:bg-[#1a4435] dark:selection:text-[#cbf3e2] transition-colors duration-150">
+    <div className="app-shell min-h-screen bg-[#f7f6f1] dark:bg-[#0c1412] text-[#16382c] dark:text-[#e4ede8] flex flex-col lg:flex-row antialiased selection:bg-[#dcf2e6] selection:text-[#12382c] dark:selection:bg-[#1a4435] dark:selection:text-[#cbf3e2] transition-colors duration-150">
       {/* Accessible Skip Link */}
       <a
         href="#main-content"
@@ -361,7 +392,7 @@ export function App() {
       <div className="flex-1 flex flex-col min-w-0">
         <main
           id="main-content"
-          className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 max-w-7xl w-full mx-auto"
+          className="app-main flex-1 p-5 sm:p-7 lg:p-10 xl:p-12 max-w-7xl w-full mx-auto"
         >
           {/* View 1: Edit an Index (Main Prototype Screen) */}
           {currentNav === 'edit-index' && (
@@ -448,6 +479,8 @@ export function App() {
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
               onExportJSON={handleExportJSON}
               onImportJSON={handleImportJSON}
+              dueCount={dueCount}
+              onStartReview={() => setCurrentNav('review')}
             />
           )}
 
@@ -455,6 +488,8 @@ export function App() {
           {currentNav === 'review' && (
             <ReviewView
               sentences={sentences}
+              srsStatsMap={reviewStats}
+              setSrsStatsMap={setReviewStats}
               onEditSentenceIndex={handleSelectSentenceToEdit}
               onBackToMain={() => setCurrentNav('library')}
               onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
@@ -510,8 +545,8 @@ export function App() {
       {/* Add Multiple Indexes Modal */}
       <AddIndexModal
         isOpen={isAddIndexModalOpen}
-        sentenceText={sentenceData.text}
-        existingIndexes={sentenceData.indexes}
+        sentenceText={sentenceData?.text ?? ''}
+        existingIndexes={sentenceData?.indexes ?? []}
         onAddMulti={handleAddMultiIndexes}
         onClose={() => setIsAddIndexModalOpen(false)}
       />

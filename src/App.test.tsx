@@ -19,7 +19,7 @@ describe('Sentence Note - Multi-Index Management', () => {
 
     // Check Header title and subtitle for Library (Home)
     expect(screen.getByRole('heading', { level: 1, name: /sentence library/i })).toBeInTheDocument()
-    expect(screen.getByText(/browse indexes and sentences in your vault/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '복습 시작' })).toBeInTheDocument()
 
     // Check Brand Section in sidebar
     expect(screen.getByRole('button', { name: /sentvault home/i })).toBeInTheDocument()
@@ -442,9 +442,9 @@ describe('Sentence Note - Multi-Index Management', () => {
     unmount()
   })
 
-  it('sanitizes ghost sentences with 0 indexes from localStorage so sentence count strictly matches visible sentences', () => {
+  it('keeps unindexed sentences visible after reload', () => {
     localStorage.clear()
-    const storedWithGhost = [
+    const storedSentences = [
       {
         id: 'sentence-1',
         text: "I didn't like pretty people because they showed off all the time.",
@@ -452,25 +452,81 @@ describe('Sentence Note - Multi-Index Management', () => {
         isFavorite: false,
       },
       {
-        id: 'ghost-sentence',
-        text: 'Ghost sentence without indexes',
+        id: 'unindexed-sentence',
+        text: 'A sentence without indexes',
         indexes: [],
         isFavorite: false,
       },
     ]
-    localStorage.setItem('sentence_vault_v1', JSON.stringify(storedWithGhost))
+    localStorage.setItem('sentence_vault_v1', JSON.stringify(storedSentences))
 
     const { unmount } = render(<App />)
 
-    // Header badges should accurately say "1 sentences"
-    expect(screen.getAllByText(/1 sentences/i).length).toBeGreaterThanOrEqual(1)
-
-    // Sidebar badge should display sent 1, not 2
+    expect(screen.getByRole("heading", { name: "Unindexed" })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: /main navigation/i })
     const libraryBtn = within(nav).getByRole('button', { name: /library/i })
-    expect(within(libraryBtn).getByText(/sent 1/i)).toBeInTheDocument()
+    expect(within(libraryBtn).getByText(/sent 2/i)).toBeInTheDocument()
 
     unmount()
+  })
+
+  it('finds a Korean translation in both library views', () => {
+    localStorage.setItem('sentence_vault_v1', JSON.stringify([{
+      id: 'sample', text: 'I spoke up.', translation: '나는 용기를 내서 말했다.',
+      indexes: [{ id: 'phrase', phrase: 'speak up' }],
+    }]))
+    render(<App />)
+    fireEvent.change(screen.getByRole('textbox', { name: /search sentences and expressions/i }), {
+      target: { value: '용기를 내서' },
+    })
+    expect(screen.getByRole('heading', { name: 'speak up' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /view by sentence/i }))
+    expect(screen.getByRole('button', { name: /edit sentence/i })).toBeInTheDocument()
+  })
+
+  it('keeps an empty vault empty across reloads', () => {
+    localStorage.setItem('sentence_vault_v1', '[]')
+    const { unmount } = render(<App />)
+    expect(screen.getByText('0 sentences')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '복습 시작' })).not.toBeInTheDocument()
+    unmount()
+    render(<App />)
+    expect(localStorage.getItem('sentence_vault_v1')).toBe('[]')
+  })
+
+  it('restores review progress and reports invalid and duplicate rows', async () => {
+    localStorage.setItem('sentence_vault_v1', '[]')
+    const { container } = render(<App />)
+    const sentence = { id: 'imported', text: 'I spoke up.', indexes: [{ id: 'phrase', phrase: 'speak up' }] }
+    const stat = {
+      id: 'imported_phrase', reps: 2, interval: 3, easeFactor: 2.5,
+      state: 'review', lapses: 0, lastReviewed: '2025-01-01', dueDate: '2099-01-01',
+    }
+    const backup = { version: 1, sentences: [sentence, sentence, null], reviewStats: { [stat.id]: stat } }
+    const file = new File([JSON.stringify(backup)], 'backup.json', { type: 'application/json' })
+    fireEvent.change(container.querySelector('input[type="file"]')!, { target: { files: [file] } })
+    expect(await screen.findByText(/추가 1개 · 중복 1개 · 오류 1개 · 복습 기록 1개 복원/)).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('sentence_vault_anki_stats_v1')!)[stat.id]).toEqual(stat)
+    expect(screen.getByText('오늘 복습할 카드가 없습니다')).toBeInTheDocument()
+  })
+
+  it('preserves the card identity when fixing a phrase and keeps it due after Again', () => {
+    const sentence = { id: 'sample', text: 'I spoke up.', indexes: [{ id: 'phrase', phrase: 'spoke up' }] }
+    localStorage.setItem('sentence_vault_v1', JSON.stringify([sentence]))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '복습 시작' }))
+    fireEvent.click(screen.getByRole('button', { name: /reveal answer/i }))
+    fireEvent.click(screen.getByRole('button', { name: /again/i }))
+    const nav = screen.getByRole('navigation', { name: /main navigation/i })
+    fireEvent.click(within(nav).getByRole('button', { name: /library/i }))
+    fireEvent.click(screen.getByRole('button', { name: /view by sentence/i }))
+    fireEvent.click(screen.getByRole('button', { name: /edit sentence/i }))
+    fireEvent.change(screen.getByRole('textbox', { name: '표현 1 수정' }), { target: { value: 'speak up' } })
+    fireEvent.click(screen.getByRole('button', { name: /변경사항 저장/ }))
+    const [saved] = JSON.parse(localStorage.getItem('sentence_vault_v1')!)
+    expect(saved.indexes).toEqual([{ id: 'phrase', phrase: 'speak up' }])
+    fireEvent.click(screen.getByRole('button', { name: '복습 시작' }))
+    expect(screen.getByText(/1\s+Learn/i)).toBeInTheDocument()
   })
 
   it('hides translations by default in Library and allows toggling visibility with the show/hide button', () => {

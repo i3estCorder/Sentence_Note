@@ -224,7 +224,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Desktop Sticky Sidebar */}
       <aside
-        className="hidden lg:flex flex-col w-60 xl:w-64 min-h-screen bg-white dark:bg-[#14201c] border-r border-[#eae6dc] dark:border-[#23352f] p-6 shrink-0 sticky top-0 self-start transition-colors"
+        className="app-sidebar hidden lg:flex flex-col w-60 xl:w-64 min-h-screen bg-white dark:bg-[#14201c] border-r border-[#eae6dc] dark:border-[#23352f] p-6 shrink-0 sticky top-0 self-start transition-colors"
         aria-label="Sidebar navigation"
       >
         {renderContent(false)}

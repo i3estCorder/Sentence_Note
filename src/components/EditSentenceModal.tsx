@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
-import { X, Languages, FileText, Sparkles, Check } from 'lucide-react'
+import { X, Languages, FileText, Check } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
+import { addPhrases } from '../utils/vault'
+import { useSentenceDialog } from '../utils/useSentenceDialog'
+import { SentencePhraseFields } from './SentencePhraseFields'
 
 interface EditSentenceModalProps {
   isOpen: boolean
@@ -41,43 +44,21 @@ const EditSentenceDialog: React.FC<EditSentenceDialogProps> = ({
   const [text, setText] = useState(sentence.text || '')
   const [translation, setTranslation] = useState(sentence.translation || '')
   const [notes, setNotes] = useState(sentence.notes || '')
-  const [phrasesInput, setPhrasesInput] = useState(
-    sentence.indexes.map((i) => i.phrase).join(', ')
-  )
+  const [indexes, setIndexes] = useState<IndexPhrase[]>(sentence.indexes)
+  const [selection, setSelection] = useState('')
+  const [phrasesInput, setPhrasesInput] = useState('')
+  const { dialogRef, textRef, handleDialogKey } = useSentenceDialog(true, onClose)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!text.trim()) return
-
-    // Parse phrases input
-    const rawPhrases = phrasesInput.trim()
-    const phraseStrings = rawPhrases
-      ? rawPhrases
-          .split(',')
-          .map((p) => p.trim())
-          .filter((p) => p.length > 0)
-      : sentence.indexes.map((i) => i.phrase)
-
-    // Preserve existing IDs where phrase matches, generate new IDs for added phrases
-    const updatedIndexes: IndexPhrase[] = phraseStrings.map((phrase, idx) => {
-      const existing = sentence.indexes.find(
-        (i) => i.phrase.toLowerCase() === phrase.toLowerCase()
-      )
-      if (existing) {
-        return existing
-      }
-      return {
-        id: `idx-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
-        phrase,
-      }
-    })
 
     const updatedSentence: SentenceData = {
       ...sentence,
       text: text.trim(),
       translation: translation.trim() || undefined,
       notes: notes.trim() || undefined,
-      indexes: updatedIndexes.length > 0 ? updatedIndexes : sentence.indexes,
+      indexes: addPhrases(indexes.map((index) => ({ ...index, phrase: index.phrase.trim() })).filter((index) => index.phrase), phrasesInput),
     }
 
     onSaveSentence(updatedSentence)
@@ -86,6 +67,8 @@ const EditSentenceDialog: React.FC<EditSentenceDialogProps> = ({
 
   return (
     <div
+      ref={dialogRef}
+      onKeyDown={handleDialogKey}
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-sentence-title"
@@ -125,10 +108,18 @@ const EditSentenceDialog: React.FC<EditSentenceDialogProps> = ({
             </label>
             <textarea
               id="edit-sentence-text"
+              ref={textRef}
+              onSelect={(event) => {
+                const field = event.currentTarget
+                setSelection(field.value.slice(field.selectionStart, field.selectionEnd).trim())
+              }}
               required
               rows={3}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value)
+                setSelection('')
+              }}
               className="w-full px-3.5 py-2.5 rounded-xl border border-[#dad6cb] dark:border-[#283d36] bg-white dark:bg-[#1b2b27] text-sm text-[#12382c] dark:text-[#e4ede8] focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] font-serif leading-relaxed resize-y placeholder:text-[#9bad9f] dark:placeholder:text-[#6a8076]"
               placeholder="e.g. Her innovative approach breathed new life into the aging project."
             />
@@ -186,29 +177,15 @@ const EditSentenceDialog: React.FC<EditSentenceDialogProps> = ({
             />
           </div>
 
-          {/* 4. Index Phrases */}
-          <div>
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#133d2e] dark:text-[#34d399]" />
-              <label
-                htmlFor="edit-sentence-phrases"
-                className="text-xs font-bold text-[#446255] dark:text-[#a0b5ab] uppercase tracking-wider"
-              >
-                등록된 인덱스 (Index Phrases, 쉼표로 구분)
-              </label>
-            </div>
-            <input
-              id="edit-sentence-phrases"
-              type="text"
-              value={phrasesInput}
-              onChange={(e) => setPhrasesInput(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#dad6cb] dark:border-[#283d36] bg-white dark:bg-[#1b2b27] text-sm text-[#12382c] dark:text-[#e4ede8] focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] placeholder:text-[#9bad9f] dark:placeholder:text-[#6a8076]"
-              placeholder="e.g. breath into, innovative approach"
-            />
-            <p className="text-[11px] text-[#7c8d85] dark:text-[#8ea49a] mt-1">
-              여러 인덱스를 쉼표(,)로 구분하여 등록하거나 수정할 수 있습니다.
-            </p>
-          </div>
+          <SentencePhraseFields
+            id="edit-sentence-phrases"
+            text={text}
+            selection={selection}
+            indexes={indexes}
+            onChange={setIndexes}
+            pending={phrasesInput}
+            onPendingChange={setPhrasesInput}
+          />
 
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#f2ede2] dark:border-[#23352f]">

@@ -15,21 +15,11 @@ import {
 } from 'lucide-react'
 import type { SentenceData, IndexPhrase } from '../types'
 import { findPhraseMatches } from '../utils/highlight'
+import { cardId, isDue, localDate, type AnkiCardStats, type ReviewStats } from '../utils/vault'
 import { speechService } from '../services/speechService'
 
 export type AnkiRating = 'again' | 'hard' | 'good' | 'easy'
 export type CardState = 'new' | 'learning' | 'review'
-
-export interface AnkiCardStats {
-  id: string // sentenceId or sentenceId-indexId
-  reps: number
-  interval: number // in days (0 means learning/same day)
-  easeFactor: number // default 2.5
-  dueDate: string // YYYY-MM-DD
-  state: CardState
-  lapses: number
-  lastReviewed?: string
-}
 
 interface ReviewItem {
   sentence: SentenceData
@@ -39,59 +29,53 @@ interface ReviewItem {
 
 interface ReviewViewProps {
   sentences: SentenceData[]
+  srsStatsMap: ReviewStats
+  setSrsStatsMap: React.Dispatch<React.SetStateAction<ReviewStats>>
   onEditSentenceIndex: (sentence: SentenceData) => void
   onBackToMain?: () => void
   onOpenMobileMenu?: () => void
   onNavigateToLibrary?: () => void
 }
 
-const STORAGE_KEY = 'sentence_vault_anki_stats_v1'
+function nextIntervalDays(rating: AnkiRating, stats: AnkiCardStats) {
+  switch (rating) {
+    case 'again':
+      return 0
+    case 'hard':
+      return stats.reps === 0 ? 1 : Math.max(1, Math.round(stats.interval * 1.2))
+    case 'good':
+      if (stats.reps === 0) return 1
+      if (stats.reps === 1) return 3
+      return Math.max(1, Math.round(stats.interval * stats.easeFactor))
+    case 'easy':
+      return stats.reps === 0 ? 4 : Math.max(1, Math.round(stats.interval * stats.easeFactor * 1.3))
+  }
+}
 
-function getTodayString(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+function getIntervalPreview(rating: AnkiRating, stats: AnkiCardStats) {
+  return rating === 'again' ? '세션 종료 후' : `${nextIntervalDays(rating, stats)}일 뒤`
 }
 
 export const ReviewView: React.FC<ReviewViewProps> = ({
   sentences,
+  srsStatsMap,
+  setSrsStatsMap,
   onEditSentenceIndex,
   onBackToMain,
   onOpenMobileMenu,
   onNavigateToLibrary,
 }) => {
-  // Load persistent SRS stats from LocalStorage
-  const [srsStatsMap, setSrsStatsMap] = useState<Record<string, AnkiCardStats>>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        return JSON.parse(saved)
-      }
-    } catch (e) {
-      console.error('Failed to parse SRS stats:', e)
-    }
-    return {}
-  })
-
-  // Save to LocalStorage whenever srsStatsMap updates
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(srsStatsMap))
-    } catch (e) {
-      console.error('Failed to save SRS stats:', e)
-    }
-  }, [srsStatsMap])
-
   // Build flashcard pool from sentences and their indexes
   const allReviewItems: ReviewItem[] = useMemo(() => {
     const list: ReviewItem[] = []
-    const today = getTodayString()
+    const today = localDate()
 
     for (const sentence of sentences) {
       if (sentence.indexes.length === 0) continue
 
       for (const idx of sentence.indexes) {
         if (!idx.phrase.trim()) continue
-        const cardKey = `${sentence.id}_${idx.id}`
+        const cardKey = cardId(sentence, idx)
         const existingStats = srsStatsMap[cardKey]
 
         const stats: AnkiCardStats = existingStats || {
@@ -117,14 +101,14 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
 
   // Due review items: cards whose dueDate <= today (or unreviewed cards)
   const dueReviewItems = useMemo(() => {
-    const today = getTodayString()
+    const today = localDate()
     return allReviewItems.filter((item) => {
       // If card has never been reviewed, or its dueDate is today or earlier
-      return !item.stats.lastReviewed || item.stats.dueDate <= today
+      return isDue(item.stats, today)
     })
   }, [allReviewItems])
 
-  // Active Session Queue (Anki logic: cards in queue can be appended again when user presses 'Again')
+  // Each queued card is reviewed once per session.
   const [queue, setQueue] = useState<ReviewItem[]>(() => [...dueReviewItems])
   const [prevSentencesCount, setPrevSentencesCount] = useState(sentences.length)
   const [isRevealed, setIsRevealed] = useState(false)
@@ -134,28 +118,16 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
   const [sessionCompletedCount, setSessionCompletedCount] = useState(0)
   const [sessionAgainCount, setSessionAgainCount] = useState(0)
   const [sessionGoodCount, setSessionGoodCount] = useState(0)
-  const [sessionAgainItems, setSessionAgainItems] = useState<ReviewItem[]>([])
   const [isSessionFinished, setIsSessionFinished] = useState(false)
 
   // Today reviewed count across all sessions
   const todayReviewedCount = useMemo(() => {
-    const today = getTodayString()
+    const today = localDate()
     return allReviewItems.filter((item) => item.stats.lastReviewed === today).length
   }, [allReviewItems])
 
-  // Again cards pool available for re-study
-  const againCardsToReview = useMemo(() => {
-    if (sessionAgainItems.length > 0) return sessionAgainItems
-    return allReviewItems.filter(
-      (item) => item.stats.state === 'learning' || item.stats.interval === 0
-    )
-  }, [sessionAgainItems, allReviewItems])
-
-  const againCardsCount = useMemo(() => {
-    return allReviewItems.filter(
-      (item) => item.stats.state === 'learning' || item.stats.interval === 0
-    ).length
-  }, [allReviewItems])
+  const againCardsToReview = allReviewItems.filter((item) => item.stats.state === 'learning')
+  const againCardsCount = againCardsToReview.length
 
   // Sync queue only if total sentences count changed (e.g. user added or deleted sentences in library)
   if (prevSentencesCount !== sentences.length) {
@@ -173,7 +145,6 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
     setSessionCompletedCount(0)
     setSessionAgainCount(0)
     setSessionGoodCount(0)
-    setSessionAgainItems([])
   }, [])
 
   const currentItem = queue[0] || null
@@ -202,39 +173,16 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
     })
   }
 
-  // Anki SM-2 Interval Calculation helper
-  const getIntervalPreview = (rating: AnkiRating, stats: AnkiCardStats) => {
-    switch (rating) {
-      case 'again':
-        return '< 10m' // Anki rule: repeat in current session
-      case 'hard': {
-        const nextInt = stats.reps === 0 ? 1 : Math.max(1, Math.round(stats.interval * 1.2))
-        return `${nextInt}d`
-      }
-      case 'good': {
-        if (stats.reps === 0) return '1d'
-        if (stats.reps === 1) return '3d'
-        const nextInt = Math.max(1, Math.round(stats.interval * stats.easeFactor))
-        return `${nextInt}d`
-      }
-      case 'easy': {
-        if (stats.reps === 0) return '4d'
-        const nextInt = Math.max(1, Math.round(stats.interval * stats.easeFactor * 1.3))
-        return `${nextInt}d`
-      }
-    }
-  }
-
   // Handle Anki Rating (Again, Hard, Good, Easy)
   const handleRate = useCallback(
     (rating: AnkiRating) => {
       if (!currentItem) return
 
-      const { stats, sentence, targetIndex } = currentItem
-      const today = getTodayString()
+      const { stats } = currentItem
+      const today = localDate()
 
       let nextReps = stats.reps
-      let nextInterval = stats.interval
+      const nextInterval = nextIntervalDays(rating, stats)
       let nextEase = stats.easeFactor
       let nextState: CardState = stats.state
       let nextLapses = stats.lapses
@@ -246,7 +194,6 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
         // 3. Increment lapse count
         // 4. Reduce ease factor slightly
         nextReps = 0
-        nextInterval = 0
         nextState = 'learning'
         nextLapses += 1
         nextEase = Math.max(1.3, Number((nextEase - 0.2).toFixed(2)))
@@ -254,28 +201,15 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
         setSessionAgainCount((c) => c + 1)
       } else if (rating === 'hard') {
         nextReps += 1
-        nextInterval = stats.reps === 0 ? 1 : Math.max(1, Math.round(stats.interval * 1.2))
         nextEase = Math.max(1.3, Number((nextEase - 0.15).toFixed(2)))
         nextState = 'review'
         setSessionGoodCount((c) => c + 1)
       } else if (rating === 'good') {
         nextReps += 1
-        if (stats.reps === 0) {
-          nextInterval = 1
-        } else if (stats.reps === 1) {
-          nextInterval = 3
-        } else {
-          nextInterval = Math.max(1, Math.round(stats.interval * stats.easeFactor))
-        }
         nextState = 'review'
         setSessionGoodCount((c) => c + 1)
       } else if (rating === 'easy') {
         nextReps += 1
-        if (stats.reps === 0) {
-          nextInterval = 4
-        } else {
-          nextInterval = Math.max(1, Math.round(stats.interval * stats.easeFactor * 1.3))
-        }
         nextEase = Number((nextEase + 0.15).toFixed(2))
         nextState = 'review'
         setSessionGoodCount((c) => c + 1)
@@ -283,8 +217,8 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
 
       // Calculate next due date
       const dueDateObj = new Date()
-      dueDateObj.setDate(dueDateObj.getDate() + (nextInterval || 1))
-      const nextDueDate = `${dueDateObj.getFullYear()}-${String(dueDateObj.getMonth() + 1).padStart(2, '0')}-${String(dueDateObj.getDate()).padStart(2, '0')}`
+      dueDateObj.setDate(dueDateObj.getDate() + nextInterval)
+      const nextDueDate = localDate(dueDateObj)
 
       const updatedStats: AnkiCardStats = {
         id: stats.id,
@@ -307,30 +241,18 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
       const remainingQueue = queue.slice(1)
       setSessionCompletedCount((c) => c + 1)
 
-      if (rating === 'again') {
-        setSessionAgainItems((prev) => {
-          const exists = prev.some(
-            (it) => it.targetIndex.id === targetIndex.id && it.sentence.id === sentence.id
-          )
-          if (exists) return prev
-          return [...prev, { sentence, targetIndex, stats: updatedStats }]
-        })
-      }
-
-      if (remainingQueue.length === 0) {
-        setIsSessionFinished(true)
-      } else {
-        setQueue(remainingQueue)
-      }
+      setQueue(remainingQueue)
+      if (remainingQueue.length === 0) setIsSessionFinished(true)
 
       setIsRevealed(false)
     },
-    [currentItem, queue]
+    [currentItem, queue, setSrsStatsMap]
   )
 
   // Keyboard shortcut listener for power-user Anki experience
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat || e.defaultPrevented || (e.target as HTMLElement)?.closest('[role="dialog"], [contenteditable="true"]')) return
       // Don't trigger if user is typing in an input
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
         return
@@ -613,13 +535,13 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
         </div>
 
         {/* Context Sentence Masked */}
-        <div className="text-xl sm:text-2xl text-[#143d30] dark:text-[#d3e2db] font-serif my-8 text-center max-w-2xl leading-relaxed">
+        <div className="max-sm:max-h-[30dvh] max-sm:overflow-y-auto break-words text-xl sm:text-2xl text-[#143d30] dark:text-[#d3e2db] font-serif my-8 text-center max-w-2xl leading-relaxed">
           {renderSentenceWithMask()}
         </div>
 
         {/* Answer Reveal Area */}
         {isRevealed && (
-          <div className="mt-2 pt-6 border-t border-[#f2ede4] dark:border-[#23352f] w-full max-w-xl animate-in fade-in zoom-in-98 duration-200 space-y-4">
+          <div className="mt-2 pt-6 border-t border-[#f2ede4] dark:border-[#23352f] w-full max-w-xl animate-in fade-in zoom-in-98 duration-200 space-y-4 max-sm:max-h-[38dvh] max-sm:overflow-y-auto">
             {/* Target phrase highlight banner with TTS */}
             <div className="p-4 rounded-2xl bg-[#faf9f3] dark:bg-[#1b2b27] border border-[#ebe6d8] dark:border-[#283d36] flex items-center justify-between gap-3">
               <div>
@@ -671,7 +593,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
         )}
 
         {/* Action Controls: Reveal vs Anki 4 Rating Buttons */}
-        <div className="mt-8 w-full max-w-xl">
+        <div className="mt-8 w-full max-w-xl max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-20 max-sm:border-t max-sm:border-[#eae6dc] max-sm:bg-[#f7f6f1] max-sm:px-3 max-sm:pt-3 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:max-sm:border-[#23352f] dark:max-sm:bg-[#0c1412]">
           {!isRevealed ? (
             <div className="flex flex-col items-center gap-2">
               <button
@@ -689,17 +611,17 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {/* 1. Again (다시) - Repeat in session */}
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5">
+                {/* Again cards are available after the session. */}
                 <button
                   type="button"
                   onClick={() => handleRate('again')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
+                  className="flex flex-col items-center justify-center py-2.5 px-1 sm:px-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
                 >
                   <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
                     {getIntervalPreview('again', currentItem.stats)}
                   </span>
-                  <span className="text-xs font-bold mt-0.5">Again</span>
+                  <span className="text-xs font-bold mt-0.5">다시 (Again)</span>
                   <span className="text-[10px] text-rose-500 dark:text-rose-400 font-mono mt-0.5 group-hover:underline">
                     [1]
                   </span>
@@ -709,12 +631,12 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('hard')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
+                  className="flex flex-col items-center justify-center py-2.5 px-1 sm:px-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
                 >
                   <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
                     {getIntervalPreview('hard', currentItem.stats)}
                   </span>
-                  <span className="text-xs font-bold mt-0.5">Hard</span>
+                  <span className="text-xs font-bold mt-0.5">어려움 (Hard)</span>
                   <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono mt-0.5 group-hover:underline">
                     [2]
                   </span>
@@ -724,12 +646,12 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('good')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-[#e6f6ee] dark:bg-[#153427] hover:bg-[#d5f0e1] dark:hover:bg-[#1a4433] text-[#0f3d2c] dark:text-[#c4ded3] border border-emerald-300 dark:border-emerald-800/80 active:scale-[0.97] transition-all cursor-pointer shadow-2xs ring-1 ring-emerald-200 dark:ring-emerald-900/60 group"
+                  className="flex flex-col items-center justify-center py-2.5 px-1 sm:px-3 rounded-xl bg-[#e6f6ee] dark:bg-[#153427] hover:bg-[#d5f0e1] dark:hover:bg-[#1a4433] text-[#0f3d2c] dark:text-[#c4ded3] border border-emerald-300 dark:border-emerald-800/80 active:scale-[0.97] transition-all cursor-pointer shadow-2xs ring-1 ring-emerald-200 dark:ring-emerald-900/60 group"
                 >
                   <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
                     {getIntervalPreview('good', currentItem.stats)}
                   </span>
-                  <span className="text-xs font-bold mt-0.5">Good</span>
+                  <span className="text-xs font-bold mt-0.5">보통 (Good)</span>
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 group-hover:underline">
                     [3 / Space]
                   </span>
@@ -739,19 +661,19 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRate('easy')}
-                  className="flex flex-col items-center justify-center py-2.5 px-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-900 dark:text-sky-200 border border-sky-200 dark:border-sky-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
+                  className="flex flex-col items-center justify-center py-2.5 px-1 sm:px-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-900 dark:text-sky-200 border border-sky-200 dark:border-sky-900/60 active:scale-[0.97] transition-all cursor-pointer shadow-2xs group"
                 >
                   <span className="text-[11px] font-bold text-sky-700 dark:text-sky-400 uppercase tracking-wider">
                     {getIntervalPreview('easy', currentItem.stats)}
                   </span>
-                  <span className="text-xs font-bold mt-0.5">Easy</span>
+                  <span className="text-xs font-bold mt-0.5">쉬움 (Easy)</span>
                   <span className="text-[10px] text-sky-600 dark:text-sky-400 font-mono mt-0.5 group-hover:underline">
                     [4]
                   </span>
                 </button>
               </div>
 
-              <div className="text-center text-[11px] text-[#7c8d85] dark:text-[#8ea49a] font-medium">
+              <div className="hidden sm:block text-center text-[11px] text-[#7c8d85] dark:text-[#8ea49a] font-medium">
                 Anki 키보드 단축키: <strong>[1] Again</strong> &bull; <strong>[2] Hard</strong> &bull; <strong>[3/Space] Good</strong> &bull; <strong>[4] Easy</strong>
               </div>
             </div>
@@ -770,6 +692,7 @@ export const ReviewView: React.FC<ReviewViewProps> = ({
           <span>Edit this sentence in Word Index</span>
         </button>
       </div>
+      <div className="h-28 sm:hidden" aria-hidden="true" />
     </div>
   )
 }

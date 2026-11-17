@@ -34,7 +34,9 @@ interface LibraryViewProps {
   onOpenMobileMenu?: () => void
   onSelectIndexToEdit?: (sentence: SentenceData, indexId: string) => void
   onExportJSON?: () => void
-  onImportJSON?: (data: SentenceData[]) => void
+  onImportJSON?: (data: unknown) => void
+  dueCount: number
+  onStartReview: () => void
 }
 
 type SortOrder = 'index-asc' | 'index-desc' | 'original'
@@ -76,6 +78,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onSelectIndexToEdit,
   onExportJSON,
   onImportJSON,
+  dueCount,
+  onStartReview,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('index')
   const [searchQuery, setSearchQuery] = useState('')
@@ -162,6 +166,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     return map
   }, [sentences])
 
+  function matchesSentence(sentence: SentenceData, query: string) {
+    return [sentence.text, sentence.translation, sentence.notes,
+      ...sentence.indexes.flatMap((index) => [index.phrase, index.meaning]),
+    ].some((value) => value?.toLowerCase().includes(query))
+  }
+
   // Convert map to list and filter by search query
   const groupedIndexList: GroupedIndex[] = useMemo(() => {
     const list: GroupedIndex[] = []
@@ -170,7 +180,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     groupedIndexMap.forEach((entry) => {
       const matchesPhrase = entry.phrase.toLowerCase().includes(q)
       const matchingSentences = entry.sentences.filter(
-        (s) => matchesPhrase || s.text.toLowerCase().includes(q)
+        (s) => matchesPhrase || matchesSentence(s, q)
       )
 
       if (matchingSentences.length > 0) {
@@ -234,14 +244,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   // Filtered and sorted sentences for sentence view mode
   const filteredSentences = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
-    const list = sentences.filter((s) => {
-      if (!q) return true
-      const matchesText = s.text.toLowerCase().includes(q)
-      const matchesTranslation = s.translation?.toLowerCase().includes(q)
-      const matchesNotes = s.notes?.toLowerCase().includes(q)
-      const matchesIndex = s.indexes.some((idx) => idx.phrase.toLowerCase().includes(q))
-      return matchesText || matchesTranslation || matchesNotes || matchesIndex
-    })
+    const list = sentences.filter((sentence) => matchesSentence(sentence, q))
 
     return [...list].sort((a, b) => {
       if (sentenceSortOrder === 'az') {
@@ -326,12 +329,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         }
       } catch (err) {
         console.error('Invalid JSON file', err)
-        alert('Invalid JSON file format.')
-      }
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        onImportJSON?.(null)
       }
     }
+    reader.onerror = () => onImportJSON?.(null)
+    e.currentTarget.value = ''
     reader.readAsText(file)
   }
 
@@ -373,7 +375,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         </div>
       )}
 
-      {/* Top Header & Actions Bar */}
+      {/* Library header and backup menu */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-[#eae6dc]/60 dark:border-[#23352f]">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -383,65 +385,51 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#133d2e] dark:bg-[#1d5743] text-white shadow-2xs">
               {sentences.length} sentences
             </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#dcf2e6] dark:bg-[#1f3d32] text-[#133d2e] dark:text-[#a7f3d0]">
-              <Sparkles className="w-3 h-3 text-[#133d2e] dark:text-[#34d399]" />
-              2-Tier Index Grouping
-            </span>
-          </div>
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            <span className="text-sm text-[#5f756c] dark:text-[#8ea49a]">
-              Browse indexes and sentences in your vault:
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#dcf2e6] dark:bg-[#183d2f] text-[#12382c] dark:text-[#9fe2c7] ring-1 ring-[#b8ebd2] dark:ring-[#235845]">
-              <Sparkles className="w-3 h-3 text-[#133d2e] dark:text-[#34d399]" />
-              Index {groupedIndexList.length}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#e0e7ff] dark:bg-[#1e1b4b] text-[#3730a3] dark:text-[#a5b4fc] ring-1 ring-[#c7d2fe] dark:ring-[#312e81]">
-              <BookOpen className="w-3 h-3 text-[#3730a3] dark:text-[#a5b4fc]" />
-              Sentence {sentences.length}
-            </span>
-            <span className="text-xs text-[#8c9e96] dark:text-[#6a8076]">
-              ({alphabetSections.length} alphabet chapters)
-            </span>
           </div>
         </div>
 
-        {/* Action Buttons: Export/Import JSON & New Sentence */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          {onExportJSON && (
-            <button
-              type="button"
-              onClick={onExportJSON}
-              title="Download all sentences as a JSON file"
-              className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5 text-[#486358] dark:text-[#8ea49a]" />
-              <span>Export JSON</span>
-            </button>
-          )}
+          {(onExportJSON || onImportJSON) && (
+            <details className="relative">
+              <summary className="cursor-pointer rounded-xl border border-[#dedad0] px-3 py-2 text-sm dark:border-[#283d36]">백업 및 복원</summary>
+              <div className="absolute left-0 z-30 mt-2 grid w-max sm:left-auto sm:right-0 gap-1 rounded-xl bg-white p-2 shadow-lg dark:bg-[#14201c]">
+                {onExportJSON && (
+                  <button
+                    type="button"
+                    onClick={(event) => { event.currentTarget.closest('details')?.removeAttribute('open'); onExportJSON() }}
+                    title="Download sentences and review progress"
+                    className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#486358] dark:text-[#8ea49a]" />
+                    <span>백업 다운로드</span>
+                  </button>
+                )}
 
-          {onImportJSON && (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              title="Import sentences from a JSON backup file"
-              className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
-            >
-              <Upload className="w-3.5 h-3.5 text-[#486358] dark:text-[#8ea49a]" />
-              <span>Import JSON</span>
-            </button>
+                {onImportJSON && (
+                  <button
+                    type="button"
+                    onClick={(event) => { event.currentTarget.closest('details')?.removeAttribute('open'); fileInputRef.current?.click() }}
+                    title="Import sentences from a JSON backup file"
+                    className="inline-flex items-center gap-1.5 h-9.5 px-3.5 bg-white dark:bg-[#14201c] hover:bg-[#f6f4ee] dark:hover:bg-[#1b2b27] active:scale-[0.98] border border-[#dedad0] dark:border-[#283d36] text-[#12382c] dark:text-[#e4ede8] text-xs font-semibold rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-[#486358] dark:text-[#8ea49a]" />
+                    <span>백업 가져오기</span>
+                  </button>
+                )}
+              </div>
+            </details>
           )}
-
-          <button
-            type="button"
-            onClick={onNavigateToAdd}
-            className="inline-flex items-center gap-1.5 h-9.5 px-4 bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.4]" aria-hidden="true" />
-            <span>New sentence</span>
-          </button>
         </div>
       </div>
+
+      <section aria-label="오늘 복습" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#e6f6ee] px-4 py-3 dark:bg-[#153427]">
+        <p className="text-sm font-semibold">{dueCount ? `오늘 복습 ${dueCount}개` : '오늘 복습할 카드가 없습니다'}</p>
+        {dueCount > 0 && (
+          <button type="button" onClick={onStartReview} className="cursor-pointer rounded-xl bg-[#133d2e] px-4 py-2.5 text-sm font-semibold text-white dark:bg-[#1d5743]">
+            복습 시작
+          </button>
+        )}
+      </section>
 
       {/* Controls Bar: Search, View Mode Toggle, and Sort Order */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
@@ -452,11 +440,20 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search index keywords or sentence context..."
+            aria-label="Search sentences and expressions"
+            placeholder="표현, 예문, 번역 또는 메모 검색"
             className="w-full h-10 pl-10 pr-4 rounded-xl bg-white dark:bg-[#14201c] border border-[#dedad0] dark:border-[#283d36] text-sm text-[#12382c] dark:text-[#e4ede8] placeholder-[#8c9e96] dark:placeholder-[#6a8076] shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#133d2e]/20 dark:focus:ring-[#34d399]/20 focus:border-[#133d2e] dark:focus:border-[#34d399] transition-all"
           />
         </div>
 
+        <button
+          type="button"
+          onClick={onNavigateToAdd}
+          className="inline-flex items-center gap-1.5 h-9.5 px-4 bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.4]" aria-hidden="true" />
+          <span>New sentence</span>
+        </button>
         {/* View Mode & Sort Controls */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Index vs Sentence Mode Tabs */}
@@ -1095,7 +1092,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   </span>
                   <button
                     type="button"
-                    onClick={() => onSelectSentenceToEdit(sentence)}
+                    onClick={() => setSentenceToEdit(sentence)}
                     className="inline-flex items-center justify-center gap-1.5 h-8.5 px-3.5 rounded-xl text-xs font-semibold bg-[#133d2e] hover:bg-[#0c2b20] dark:bg-[#1d5743] dark:hover:bg-[#256c53] active:scale-[0.98] text-white transition-all cursor-pointer shadow-2xs hover:shadow-xs shrink-0"
                   >
                     <Edit3 className="w-3.5 h-3.5 stroke-[2.2]" />

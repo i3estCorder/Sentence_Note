@@ -108,11 +108,11 @@ export interface AnkiCardStats {
 ### 4.3 Anki 간격 반복 복습 시스템 (`src/components/ReviewView.tsx`)
 - **SM-2 알고리즘 구현**:
   - **Again**: `reps = 0`, `interval = 0`, `state = 'learning'`, `easeFactor -= 0.2`  
-    👉 **핵심 로직**: 카드가 현재 세션 큐의 맨 뒤에 다시 삽입되어, 오늘 세션이 끝나기 전까지 반복 출제.
+    👉 **핵심 로직**: 카드를 재학습 상태로 저장하고, 세션을 마친 뒤 다시 복습할 수 있도록 당일 목록에 유지.
   - **Hard**: `reps += 1`, `interval = interval * 1.2`, `easeFactor -= 0.15`
   - **Good**: `reps += 1`, `interval = reps == 1 ? 1d : reps == 2 ? 3d : interval * easeFactor`
   - **Easy**: `reps += 1`, `interval = reps == 1 ? 4d : interval * easeFactor * 1.3`, `easeFactor += 0.15`
-- **인터벌 미리보기**: 버튼 상단에 `< 10m`, `1d`, `3d`, `4d` 등 다음 복습 예정 간격이 실시간 계산되어 표기.
+- **인터벌 미리보기**: 버튼 상단에 세션 종료 후 재복습 안내 또는 다음 복습까지 남은 일수를 표시.
 - **3색 덱 카운터**: 🔵 **New** (신규), 🔴 **Learn** (재학습 큐), 🟢 **Review** (오늘 복습).
 - **키보드 단축키**:
   - `Space` / `Enter`: 정답 확인 (Reveal answer)

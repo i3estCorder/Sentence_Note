@@ -6,7 +6,7 @@ interface SentenceDisplayProps {
   sentenceText: string
   indexes: IndexPhrase[]
   activeIndexId: string
-  onSelectIndex: (id: string) => void
+  onSelectIndex?: (id: string) => void
 }
 
 export const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
@@ -69,6 +69,16 @@ export const SentenceDisplay: React.FC<SentenceDisplayProps> = ({
       // Add match highlight
       const isActive = match.indexPhrase.id === activeIndexId
       const matchedText = sentenceText.substring(match.startIndex, match.endIndex)
+
+      if (!onSelectIndex) {
+        elements.push(
+          <mark key={`match-${match.startIndex}`} className="rounded bg-[#dcf2e6] px-0.5 text-inherit dark:bg-[#234e3e]">
+            {matchedText}
+          </mark>
+        )
+        cursor = match.endIndex
+        continue
+      }
 
       elements.push(
         <button

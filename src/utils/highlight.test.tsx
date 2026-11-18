@@ -126,3 +126,47 @@ describe('highlight utility with verb tenses and inflections', () => {
     expect(text.substring(matchesBare[1].start, matchesBare[1].end)).toBe('into')
   })
 })
+
+
+describe('be/get predicate patterns', () => {
+  it.each(['be', 'am', 'is', 'are', 'was', 'were', 'been', 'being'])('normalizes %s to the be family', (verb) => {
+    expect(getWordInflections(verb)).toEqual(['be', 'am', 'is', 'are', 'was', 'were', 'been', 'being'])
+  })
+
+  it.each([
+    ['My card got stuck in this machine.', 'got stuck in', ['got stuck in']],
+    ['My card got stuck in this machine.', 'get stuck in', ['got stuck in']],
+    ['My card is still stuck in this machine.', 'be stuck in', ['is', 'stuck in']],
+    ['I’m stuck in traffic.', 'be stuck in', ['’m stuck in']],
+    ["I'm still stuck in traffic.", 'be stuck in', ["'m", 'stuck in']],
+    ['I am stuck in traffic.', 'be stuck in', ['am stuck in']],
+    ['We are stuck in traffic.', 'be stuck in', ['are stuck in']],
+    ['We were still really stuck in traffic.', 'be stuck in', ['were', 'stuck in']],
+    ['He’s still stuck in traffic.', 'be stuck in', ['’s', 'stuck in']],
+    ["They're stuck in traffic.", 'be stuck in', ["'re stuck in"]],
+    ['It isn’t stuck in the machine.', 'be stuck in', ['isn’t stuck in']],
+    ['She gets temporarily stuck in traffic.', 'got stuck in', ['gets', 'stuck in']],
+    ['My card is stuck in this machine.', 'are stuck in', ['is stuck in']],
+  ])('matches %s against %s', (text, phrase, expected) => {
+    const ranges = findPhraseMatches(text, phrase, true)
+    expect(ranges.map(({ start, end }) => text.slice(start, end))).toEqual(expected)
+    expect(ranges.every(range => range.isPrimary)).toBe(true)
+  })
+
+  it.each([
+    ['We are here. A card is stuck in traffic.', ['is stuck in']],
+    ['We are discussing a card stuck in traffic.', []],
+    ['We are still. Stuck in traffic.', []],
+    ['They got stuck inside the machine.', []],
+    ['My card got stuck in this machine.', []],
+  ])('does not match unrelated words or cross sentence boundaries: %s', (text, expected) => {
+    expect(findPhraseMatches(text, 'be stuck in', true).map(({ start, end }) => text.slice(start, end))).toEqual(expected)
+  })
+
+  it('renders repeated matches without changing text or highlighting modifiers', () => {
+    const text = 'I’m still stuck in traffic, and we are really stuck in traffic.'
+    const { container } = render(<div>{highlightMultiPhrases(text, 'be stuck in')}</div>)
+    expect(container.textContent).toBe(text)
+    expect([...container.querySelectorAll('mark')].map(mark => mark.textContent)).toEqual(['’m', 'stuck in', 'are', 'stuck in'])
+  })
+})

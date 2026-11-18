@@ -8,6 +8,7 @@ interface MatchRange {
 
 // Major irregular verbs dictionary for common English verbs
 const IRREGULAR_VERBS: Record<string, string[]> = {
+  be: ['am', 'is', 'are', 'was', 'were', 'been', 'being'],
   show: ['shows', 'showed', 'shown', 'showing'],
   tuck: ['tucks', 'tucked', 'tucking'],
   stumble: ['stumbles', 'stumbled', 'stumbling'],
@@ -171,6 +172,10 @@ export function getWordInflections(word: string): string[] {
   const lower = word.toLowerCase().trim()
   if (!lower || lower.length < 2) return [lower]
 
+  if (lower === 'be' || IRREGULAR_VERBS.be.includes(lower)) {
+    return ['be', ...IRREGULAR_VERBS.be]
+  }
+
   const baseCandidates = getBaseForms(lower)
   const allForms = new Set<string>([lower])
 
@@ -239,6 +244,27 @@ export function createPhraseMatcher(phrase: string): PhraseMatcher | null {
     return {
       type: 'single',
       regex: new RegExp(`\\b(${inflections.join('|')})\\b`, 'gi'),
+    }
+  }
+
+  // Be/get predicates allow common intervening modifiers, but never arbitrary
+  // noun phrases or punctuation. Keep modifiers outside the highlighted ranges.
+  const headForms = getWordInflections(rawTokens[0])
+  const isBe = headForms.includes('be')
+  const isGet = headForms.includes('get')
+  if ((isBe || isGet) && !rawTokens.some(isPlaceholderToken)) {
+    const forms = isBe
+      ? ['be', ...IRREGULAR_VERBS.be, "isn't", "aren't", "wasn't", "weren't", 'isn’t', 'aren’t', 'wasn’t', 'weren’t']
+      : ['get', ...IRREGULAR_VERBS.get]
+    const fullVerb = `\\b(?:${forms.map(escapeRegex).join('|')})\\b`
+    // Highlight only the contracted verb, preserving the subject and offsets.
+    const contractions = String.raw`(?<=\bI)['’]m\b|(?<=\b(?:you|we|they))['’]re\b|(?<=\b(?:he|she|it|that|there|what|who))['’]s\b`
+    const head = isBe ? `(?:${fullVerb}|${contractions})` : fullVerb
+    const modifiers = 'still|not|never|always|often|sometimes|already|just|really|very|quite|almost|nearly|completely|totally|finally|suddenly|usually|currently|temporarily|actually|also|even|probably|certainly'
+    const tail = rawTokens.slice(1).map(escapeRegex).join('\\s+')
+    return {
+      type: 'split',
+      regex: new RegExp(`(${head})(?:\\s+((?:${modifiers})(?:\\s+(?:${modifiers})){0,3}))?\\s+(${tail}\\b)`, 'gi'),
     }
   }
 
